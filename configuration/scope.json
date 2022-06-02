@@ -1,0 +1,6 @@
+{
+  "$schema": "https://raw.githubusercontent.com/wisdom-oss/documentation/main/schemas/service-scope.schema.json",
+  "name": "Water Usage History",
+  "description": "This scope allows the access to the history of a single consumer",
+  "scopeStringValue": "water-usage:history"
+}
