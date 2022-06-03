@@ -99,7 +99,11 @@ async def get(
     consumer: uuid.UUID = fastapi.Query(default=..., alias="consumer"),
 ):
     query = sqlalchemy.select(
-        [database.tables.usages.c.year, database.tables.usages.c.value.label("usage")],
+        [
+            database.tables.usages.c.year,
+            database.tables.usages.c.value.label("usage"),
+            database.tables.usages.c.recorded.label("recorded_at"),
+        ],
         database.tables.usages.c.consumer == consumer,
     ).order_by(database.tables.usages.c.year)
     query_result = database.engine.execute(query).all()
