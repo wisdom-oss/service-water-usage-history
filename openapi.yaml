@@ -1,0 +1,39 @@
+openapi: 3.0.3
+info:
+  title: Water Usage History
+  description: Water Usage History
+  version: 1.0.0
+servers:
+  - url: '/api/water-usage-history'
+paths:
+  /:
+    get:
+      parameters:
+        - in: query
+          required: true
+          name: consumer
+          schema:
+            type: string
+      summary: Get a list of recorded usage for the specified consumer
+      responses:
+        204:
+          description: The specified consumer filter returned 0 entries
+        200:
+          description: A list of entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    year:
+                      type: integer
+                      description: The year for which the usage counts
+                    usage:
+                      type: number
+                      description: The amount of used water in m³
+                    recorded_at:
+                      type: string
+                      description: The time and date at which the entry was inserted into the database as RFC 3339 string
+  
