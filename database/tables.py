@@ -11,7 +11,9 @@ usages = sqlalchemy.Table(
     water_usage_meta_data,
     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True, autoincrement=True),
     sqlalchemy.Column("shape", sqlalchemy.Integer, sqlalchemy.ForeignKey("geodata.shape.id")),
-    sqlalchemy.Column("consumer", sqlalchemy.dialects.postgresql.UUID, sqlalchemy.ForeignKey("consumers.id")),
+    sqlalchemy.Column(
+        "consumer", sqlalchemy.dialects.postgresql.UUID(as_uuid=True), sqlalchemy.ForeignKey("consumers.id")
+    ),
     sqlalchemy.Column("consumer_group", sqlalchemy.Integer, sqlalchemy.ForeignKey("consumer_group.id")),
     sqlalchemy.Column("year", sqlalchemy.Integer),
     sqlalchemy.Column("value", sqlalchemy.Numeric),
