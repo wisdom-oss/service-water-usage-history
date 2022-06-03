@@ -155,5 +155,5 @@ def when_ready(server):
     asyncio.run(_service_registry_client.status_update("UP"))
 
 
-async def on_exit(server):
+def on_exit(server):
     asyncio.run(_service_registry_client.stop())
