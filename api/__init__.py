@@ -47,6 +47,7 @@ async def get(
     ),
     consumer: uuid.UUID = fastapi.Query(default=..., alias="consumer"),
 ):
+    print(consumer)
     query = sqlalchemy.select(
         [
             database.tables.usages.c.year,
@@ -54,8 +55,9 @@ async def get(
             database.tables.usages.c.recorded.label("recorded_at"),
         ],
         database.tables.usages.c.consumer == consumer,
-    ).order_by(database.tables.usages.c.year)
+    )
     query_result = database.engine.execute(query).fetchall()
+    print(query_result)
     if len(query_result) == 0:
         return fastapi.Response(status_code=204)
     return query_result
