@@ -1,26 +1,19 @@
 """Package containing the code which will be the API later on"""
-import datetime
-import email.utils
-import hashlib
-import logging
 import typing
 import uuid
 
 import amqp_rpc_client
 import fastapi
 import py_eureka_client.eureka_client
-import pytz as pytz
 import sqlalchemy.exc
-import orjson
-import database.tables
+
 import api.handler
 import configuration
 import database
+import database.tables
 import exceptions
 import models.internal
-import tools
 from api import security
-
 
 # %% Global Clients
 _amqp_client: typing.Optional[amqp_rpc_client.Client] = None
@@ -47,7 +40,6 @@ async def get(
     ),
     consumer: uuid.UUID = fastapi.Query(default=..., alias="consumer"),
 ):
-    print(consumer)
     query = sqlalchemy.select(
         [
             database.tables.usages.c.year,
@@ -55,9 +47,8 @@ async def get(
             database.tables.usages.c.recorded.label("recorded_at"),
         ],
         database.tables.usages.c.consumer == consumer,
-    )
-    query_result = database.engine.execute(query).fetchall()
-    print(query_result)
-    if len(query_result) == 0:
+    ).order_by(database.tables.usages.c.year)
+    query_result = database.engine.execute(query).all()
+    if not query_result:
         return fastapi.Response(status_code=204)
     return query_result
