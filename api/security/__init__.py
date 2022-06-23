@@ -18,6 +18,8 @@ __wisdom_central_auth = fastapi.security.OAuth2PasswordBearer(
     auto_error=False,
 )
 
+_logger = logging.getLogger("api.security")
+
 # %% Required Settings for the common packages
 _service_settings = configuration.ServiceConfiguration()
 _amqp_settings = configuration.AMQPConfiguration()
@@ -53,15 +55,21 @@ def is_authorized_user(
             http_status=http.HTTPStatus.BAD_REQUEST,
         )
     # Prepare the request
+    _logger.debug("Creating a new access token introspection request")
     introspection_request = models.amqp.TokenIntrospectionRequest(bearer_token=access_token, scope=scopes.scope_str)
+    _logger.debug("Created the following token introspection request: %s", introspection_request.json())
     # Send the request and wait a max amount of 10 seconds until the response needs to be returned
+    _logger.debug("Sending the token introspection request to the AMQP RPC authorization service")
     introspection_id = _amqp_client.send(
         introspection_request.json(by_alias=True),
         _amqp_settings.authorization_exchange,
         "authorization-service",
     )
+    _logger.debug("Request successfully sent. Waiting for response")
     introspection_response_bytes = _amqp_client.await_response(introspection_id, 10)
+    _logger.debug("Waiting for the response ended")
     if introspection_response_bytes is None:
+        _logger.error("Token introspection timeout occurred")
         raise exceptions.APIException(
             error_code="TOKEN_VALIDATION_TIMEOUT",
             error_title="Token Validation Timeout",
@@ -69,8 +77,11 @@ def is_authorized_user(
             http_status=http.HTTPStatus.REQUEST_TIMEOUT,
         )
     # Try to read the response
+    _logger.debug("Trying to parse the response of the amqp rpc authorization service")
     token = models.internal.TokenIntrospection.parse_raw(introspection_response_bytes)
+    _logger.debug("Parsed the following information from the response: %s", token.json())
     if not token.active:
+        _logger.warning("An inactive token was used to access this service")
         match token.reason:
             case enums.TokenIntrospectionFailure.INVALID_TOKEN:
                 raise exceptions.APIException(
@@ -133,5 +144,7 @@ def is_authorized_user(
                     http_status=http.HTTPStatus.UNAUTHORIZED,
                 )
     if token.user is None:
+        _logger.debug("The user accessing this service is authorized, but no information about the used is present")
         return True
+    _logger.debug("The user '%s' accessing this service is authorized to access this service", token.user.username)
     return token.user
