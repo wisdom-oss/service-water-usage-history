@@ -58,7 +58,7 @@ async def get(
     if not query_result:
         _logger.debug("There is no water usage history available for the consumer %s", consumer)
         return fastapi.Response(status_code=204)
-    _logger.debug("Returning the water usage history", consumer)
+    _logger.debug("Returning the water usage history for the consumer %s", consumer)
     return query_result
 
 
