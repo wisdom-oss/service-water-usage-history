@@ -104,6 +104,7 @@ def on_starting(server):
     if _scope_check_response_bytes is None:
         logging.critical("Unable to communicate with the authorization service")
         asyncio.run(_service_registry_client.stop())
+        _amqp_client.stop()
         sys.exit(1)
     _scope_check_response: dict = orjson.loads(_scope_check_response_bytes)
     # Check if the scope check response contains any of the known error keys
@@ -123,6 +124,7 @@ def on_starting(server):
             logging.critical(
                 "Unable to create the scope which shall be used by the service:\n%s", _scope_create_response
             )
+            _amqp_client.stop()
             sys.exit(3)
         logging.info("Successfully created the scope that shall be used by this service")
     # Set the value for the used security scope internally
@@ -136,6 +138,7 @@ def on_starting(server):
             "the documentation for further instructions: "
             "DATABASE_CONFIGURATION_INVALID"
         )
+        _amqp_client.stop()
         sys.exit(1)
     logging.info("Checking the connection to the database")
     _database_configuration.dsn.port = (
@@ -151,6 +154,7 @@ def on_starting(server):
             "The database is not available. Since this service requires an access to the database the service will "
             "not start"
         )
+        _amqp_client.stop()
         sys.exit(2)
     _amqp_client.stop()
 
