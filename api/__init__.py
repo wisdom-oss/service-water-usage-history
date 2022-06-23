@@ -40,7 +40,7 @@ async def get(
     user: typing.Union[models.internal.UserAccount, bool] = fastapi.Security(
         security.is_authorized_user, scopes=[_security_configuration.scope_string_value]
     ),
-    consumer: uuid.UUID = fastapi.Query(default=..., alias="consumer"),
+    consumer=fastapi.Query(default=..., alias="consumer"),
 ):
     _logger.debug("Water usage history of consumer %s requested by user %s", consumer, user.username)
     query = sqlalchemy.select(
@@ -60,3 +60,13 @@ async def get(
         return fastapi.Response(status_code=204)
     _logger.debug("Returning the water usage history", consumer)
     return query_result
+
+
+@service.put("/file")
+async def upload_file(
+    usage_history: fastapi.UploadFile,
+    user: typing.Union[models.internal.UserAccount, bool] = fastapi.Security(
+        security.is_authorized_user, scopes=[_security_configuration.scope_string_value]
+    ),
+):
+    pass
