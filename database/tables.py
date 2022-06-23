@@ -18,6 +18,7 @@ usages = sqlalchemy.Table(
     sqlalchemy.Column("year", sqlalchemy.Integer),
     sqlalchemy.Column("value", sqlalchemy.Numeric),
     sqlalchemy.Column("recorded", sqlalchemy.dialects.postgresql.TIMESTAMP(timezone=True)),
+    sqlalchemy.Column("recorder", sqlalchemy.Integer, sqlalchemy.ForeignKey("authorization.accounts.id")),
 )
 
 consumer_groups = sqlalchemy.Table(

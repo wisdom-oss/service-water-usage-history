@@ -1,4 +1,5 @@
 """Package containing the code which will be the API later on"""
+import logging
 import typing
 import uuid
 
@@ -18,6 +19,7 @@ from api import security
 # %% Global Clients
 _amqp_client: typing.Optional[amqp_rpc_client.Client] = None
 _service_registry_client: typing.Optional[py_eureka_client.eureka_client.EurekaClient] = None
+_logger = logging.getLogger("API")
 
 # %% API Setup
 service = fastapi.FastAPI()
@@ -40,6 +42,7 @@ async def get(
     ),
     consumer: uuid.UUID = fastapi.Query(default=..., alias="consumer"),
 ):
+    _logger.debug("Water usage history of consumer %s requested by user %s", consumer, user.username)
     query = sqlalchemy.select(
         [
             database.tables.usages.c.year,
@@ -48,7 +51,12 @@ async def get(
         ],
         database.tables.usages.c.consumer == consumer,
     ).order_by(database.tables.usages.c.year)
+    _logger.debug("Built the following query: %s", query)
+    _logger.debug("Executing the above printed query")
     query_result = database.engine.execute(query).all()
+    _logger.debug("Finished executing the query and got all results")
     if not query_result:
+        _logger.debug("There is no water usage history available for the consumer %s", consumer)
         return fastapi.Response(status_code=204)
+    _logger.debug("Returning the water usage history", consumer)
     return query_result
