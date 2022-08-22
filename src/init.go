@@ -6,6 +6,8 @@ import (
 	"flag"
 	log "github.com/sirupsen/logrus"
 	"os"
+	"strconv"
+	"strings"
 )
 
 /*
@@ -52,4 +54,50 @@ func init() {
 		// Show the levels name fully, even though this may result in shifts between the log lines
 		DisableLevelTruncation: true,
 	})
+}
+
+/*
+Initialization Step 3 - Required environment variable check
+
+This initialization step will check the existence of the following variables and if the values are not empty strings:
+	- CONFIG_API_GATEWAY_HOST
+	- CONFIG_API_GATEWAY_ADMIN_PORT
+	- CONFIG_API_GATEWAY_SERVICE_PATH
+
+Furthermore, this step will use sensitive defaults on the following environment variables
+	- CONFIG_HTTP_LISTEN_PORT = 8000
+
+TODO: Add own required and optional variables to this function, if needed
+*/
+func init() {
+	logger := log.WithFields(log.Fields{
+		"initStep":      3,
+		"initStepTitle": "Environment variable check",
+	})
+	logger.Debug("Validating the required environment variables for their existence and if the variables are not empty")
+	// Use os.LookupEnv to check if the variables are existent in the environment, but ignore their values since
+	// they have already been read once
+	_, apiGatewayHostSet := os.LookupEnv("CONFIG_API_GATEWAY_HOST")
+	_, apiGatewayAdminPortSet := os.LookupEnv("CONFIG_API_GATEWAY_ADMIN_PORT")
+	_, apiGatewayServicePathSet := os.LookupEnv("CONFIG_API_GATEWAY_SERVICE_PATH")
+	// Now check the results of the environment variable lookup and check if the string did not only contain whitespaces
+	if !apiGatewayHostSet || strings.TrimSpace(apiGatewayHost) == "" {
+		logger.Fatal("The required environment variable 'CONFIG_API_GATEWAY_HOST' is not populated.")
+	}
+	if !apiGatewayAdminPortSet || strings.TrimSpace(apiGatewayAdminPort) == "" {
+		logger.Fatal("The required environment variable 'CONFIG_API_GATEWAY_HOST' is not populated.")
+	}
+	if !apiGatewayServicePathSet || strings.TrimSpace(apiGatewayServicePath) == "" {
+		logger.Fatal("The required environment variable 'CONFIG_API_GATEWAY_HOST' is not populated.")
+	}
+	// Now check if the optional variables have been set. If not set their respective default values
+	// TODO: Add checks for own optional variables, if needed
+	_, httpListenPortSet := os.LookupEnv("CONFIG_HTTP_LISTEN_PORT")
+	if !httpListenPortSet {
+		httpListenPort = "8000"
+	}
+	if _, err := strconv.Atoi(httpListenPort); err != nil {
+		logger.Warning("The http listen port which has been set is not a number. Defaulting to 8000")
+		httpListenPort = "8000"
+	}
 }
