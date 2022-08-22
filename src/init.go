@@ -4,6 +4,8 @@ package main
 
 import (
 	"flag"
+	log "github.com/sirupsen/logrus"
+	"os"
 )
 
 /*
@@ -21,4 +23,33 @@ func init() {
 	)
 	// Parse the created flags into their variables
 	flag.Parse()
+}
+
+/*
+Initialization Step 2 - Logger Configuration
+
+This step will set up the logging library logrus for this microservice and set the correct logging level
+*/
+func init() {
+	// Check if a logging level was set in the environment variables
+	rawLoggingLevel, envFound := os.LookupEnv("CONFIG_LOGGING_LEVEL")
+	// If the logging level was not set use info as default level
+	if !envFound || (envFound && rawLoggingLevel == "") {
+		rawLoggingLevel = "info"
+	}
+	// Parse the raw value to a logging level which is understood by logrus
+	logrusLoggingLevel, err := log.ParseLevel(rawLoggingLevel)
+	// If an unknown logging level was supplied use the Info level as default level
+	if err != nil {
+		logrusLoggingLevel = log.InfoLevel
+	}
+	// Set the level for the logging library
+	log.SetLevel(logrusLoggingLevel)
+	// Set the formatter for the logging library
+	log.SetFormatter(&log.TextFormatter{
+		// Display the full time stamp in the logs
+		FullTimestamp: true,
+		// Show the levels name fully, even though this may result in shifts between the log lines
+		DisableLevelTruncation: true,
+	})
 }
