@@ -3,16 +3,18 @@ package gateway
 import (
 	"encoding/json"
 	"fmt"
-	log "github.com/sirupsen/logrus"
-	"microservice/helpers"
 	"net/http"
 	"net/url"
+
+	log "github.com/sirupsen/logrus"
+	"microservice/helpers"
 )
 
 var gatewayAPIUrl = ""
 var gatewayUpstreamName = ""
 var gatewayServiceName = ""
 var connectionsPrepared = false
+var httpListenPort = ""
 
 var logger = log.WithFields(log.Fields{
 	"localIP":             helpers.GetLocalIP(),
@@ -30,13 +32,14 @@ PrepareGatewayConnections
 
 Call this function once before calling the api gateway to prepare the gatewayAPIUrl. T
 */
-func PrepareGatewayConnections(serviceName string, host string, adminAPIPort string) {
+func PrepareGatewayConnections(serviceName string, host string, adminAPIPort string, listenPort string) {
 	gatewayAPIUrl = fmt.Sprintf("http://%s:%s", host, adminAPIPort)
 	logger.Info("Set the gatewayAPIUrl")
 	gatewayUpstreamName = fmt.Sprintf("upstream_%s", serviceName)
 	logger.Info("Successfully set the gateway upstream name")
 	gatewayServiceName = fmt.Sprintf("service_%s", serviceName)
 	logger.Info("Successfully set the gateway service name")
+	httpListenPort = listenPort
 	connectionsPrepared = true
 }
 
@@ -89,17 +92,70 @@ func CreateUpstream() bool {
 	// Post the request body to the gateway
 	response, err := http.PostForm(gatewayAPIUrl+"/upstreams", requestBody)
 	if err != nil {
-		logger.WithField("function", "CreateUpstream").WithError(err).Error("An error occurred while sending the request to create the new upstream")
+		logger.
+			WithField("function", "CreateUpstream").
+			WithError(err).
+			Error("An error occurred while sending the request to create the new upstream")
 		return false
 	}
 	if response.StatusCode != 201 {
-		logger.WithField("function", "CreateUpstream").Error("The gateway did not report the correct response code. The upstream may not have been created")
+		logger.
+			WithField("function", "CreateUpstream").
+			Error("The gateway did not report the correct response code. The upstream may not have been created")
 		return false
 	}
-	logger.WithField("function", "CreateUpstream").Info("The upstream was created in the gateway. Storing information about the upstream.")
+	logger.
+		WithField("function", "CreateUpstream").
+		Info("The upstream was created in the gateway. Storing information about the upstream.")
 	parseError := json.NewDecoder(response.Body).Decode(&Upstream)
 	if parseError != nil {
-		logger.WithField("function", "CreateUpstream").Warning("Unable to parse the content of the response. There will be no information available about the upstream")
+		logger.
+			WithField("function", "CreateUpstream").
+			Warning("Unable to parse the content of the response. " +
+				"There will be no information available about the upstream")
 	}
 	return true
+}
+
+/*
+IsIPAddressInUpstreamTargets
+
+Check if this instance of the service is in the target list of the upstream for this service
+*/
+func IsIPAddressInUpstreamTargets() bool {
+	logger := logger.WithField("function", "IsIPAddressInUpstreamTargets")
+	if !connectionsPrepared {
+		logger.
+			Warning("The gateway connections have not been prepared before calling this method")
+	}
+	// Get the local IP address of the container
+	localIPAddress := helpers.GetLocalIP()
+	targetAddress := localIPAddress + ":" + httpListenPort
+	logger.
+		WithField("targetAddress", targetAddress).
+		Info("Checking if this service instance is registered in the upstream for this service")
+	// Get a list of the targets configured for the upstream
+	response, err := http.Get(gatewayAPIUrl + "/upstreams/" + Upstream.Id + "/targets")
+	if err != nil {
+		logger.
+			WithError(err).
+			Error("An error occurred while requesting the list of targets for the current upstream")
+		return false
+	}
+	targetList := new(TargetList)
+	parserError := json.NewDecoder(response.Body).Decode(&targetList)
+	if parserError != nil {
+		logger.
+			WithError(parserError).
+			Error("Unable to parse the target list from the response sent by the gateway")
+		return false
+	}
+	for _, target := range targetList.Targets {
+		if target.Address == targetAddress {
+			logger.Info("Found the target in the current upstream")
+			return true
+		}
+	}
+	logger.Warning("The target is not in the current upstream")
+	return false
 }
