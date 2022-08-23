@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"net"
 	"time"
 )
@@ -31,4 +32,25 @@ func PingHost(host string, port string, timeout int) bool {
 		return true
 	}
 
+}
+
+/*
+GetLocalIP
+
+Get the local ip address as a string.
+*/
+func GetLocalIP() string {
+	interfaceAddresses, err := net.InterfaceAddrs()
+	if err != nil {
+		log.WithError(err).Error("Unable to access the network interface addresses. Please check your permissions.")
+		return ""
+	}
+	for _, address := range interfaceAddresses {
+		if address, ok := address.(*net.IPNet); ok && !address.IP.IsLoopback() {
+			if address.IP.To4() != nil {
+				return address.IP.String()
+			}
+		}
+	}
+	return ""
 }
