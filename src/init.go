@@ -5,6 +5,7 @@ package main
 import (
 	"flag"
 	log "github.com/sirupsen/logrus"
+	"microservice/helpers"
 	"os"
 	"strconv"
 	"strings"
@@ -71,8 +72,8 @@ TODO: Add own required and optional variables to this function, if needed
 */
 func init() {
 	logger := log.WithFields(log.Fields{
-		"initStep":      3,
-		"initStepTitle": "Environment variable check",
+		"initStep":     3,
+		"initStepName": "CONFIGURATION_CHECK",
 	})
 	logger.Debug("Validating the required environment variables for their existence and if the variables are not empty")
 	// Use os.LookupEnv to check if the variables are existent in the environment, but ignore their values since
@@ -85,10 +86,10 @@ func init() {
 		logger.Fatal("The required environment variable 'CONFIG_API_GATEWAY_HOST' is not populated.")
 	}
 	if !apiGatewayAdminPortSet || strings.TrimSpace(apiGatewayAdminPort) == "" {
-		logger.Fatal("The required environment variable 'CONFIG_API_GATEWAY_HOST' is not populated.")
+		logger.Fatal("The required environment variable 'CONFIG_API_GATEWAY_ADMIN_PORT' is not populated.")
 	}
 	if !apiGatewayServicePathSet || strings.TrimSpace(apiGatewayServicePath) == "" {
-		logger.Fatal("The required environment variable 'CONFIG_API_GATEWAY_HOST' is not populated.")
+		logger.Fatal("The required environment variable 'CONFIG_API_GATEWAY_SERVICE_PATH' is not populated.")
 	}
 	// Now check if the optional variables have been set. If not set their respective default values
 	// TODO: Add checks for own optional variables, if needed
@@ -99,5 +100,28 @@ func init() {
 	if _, err := strconv.Atoi(httpListenPort); err != nil {
 		logger.Warning("The http listen port which has been set is not a number. Defaulting to 8000")
 		httpListenPort = "8000"
+	}
+}
+
+/*
+Initialization Step 4 - Check the dependency connections
+
+This initialization step will check if all dependency containers are reachable.
+
+TODO: Add checks for new dependencies
+*/
+func init() {
+	// Create a logger for this step
+	logger := log.WithFields(log.Fields{
+		"initStep":     4,
+		"initStepName": "DEPENDENCY_CONNECTION_CHECK",
+	})
+	// Check if the kong admin api is reachable
+	logger.Infof("Checking if the api gateway on the host '%s' is reachable on port '%s'", apiGatewayHost, apiGatewayAdminPort)
+	gatewayReachable := helpers.PingHost(apiGatewayHost, apiGatewayAdminPort, 10)
+	if !gatewayReachable {
+		logger.Fatalf("The api gateway on the host '%s' is not reachable on port '%s'", apiGatewayHost, apiGatewayAdminPort)
+	} else {
+		logger.Info("The api gateway is reachable via tcp")
 	}
 }
