@@ -6,6 +6,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"microservice/helpers"
 	"net/http"
+	"net/url"
 )
 
 var gatewayAPIUrl = ""
@@ -71,4 +72,34 @@ func IsUpstreamSetUp() bool {
 	default:
 		return false
 	}
+}
+
+/*
+CreateUpstream
+
+Create a new upstream in the api gateway for this service and its instances
+*/
+func CreateUpstream() bool {
+	if !connectionsPrepared {
+		logger.WithField("function", "CreateUpstream").Warning("The gateway connections have not been prepared before calling this method")
+	}
+	// Build the request content
+	requestBody := url.Values{}
+	requestBody.Set("name", gatewayUpstreamName)
+	// Post the request body to the gateway
+	response, err := http.PostForm(gatewayAPIUrl+"/upstreams", requestBody)
+	if err != nil {
+		logger.WithField("function", "CreateUpstream").WithError(err).Error("An error occurred while sending the request to create the new upstream")
+		return false
+	}
+	if response.StatusCode != 201 {
+		logger.WithField("function", "CreateUpstream").Error("The gateway did not report the correct response code. The upstream may not have been created")
+		return false
+	}
+	logger.WithField("function", "CreateUpstream").Info("The upstream was created in the gateway. Storing information about the upstream.")
+	parseError := json.NewDecoder(response.Body).Decode(&Upstream)
+	if parseError != nil {
+		logger.WithField("function", "CreateUpstream").Warning("Unable to parse the content of the response. There will be no information available about the upstream")
+	}
+	return true
 }
