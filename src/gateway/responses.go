@@ -55,3 +55,8 @@ type UpstreamConfiguration struct {
 		Id string `json:"id"`
 	} `json:"client_certificate"`
 }
+
+type TargetList struct {
+	Targets []TargetInformation `json:"data"`
+	Next    string              `json:"next"`
+}
