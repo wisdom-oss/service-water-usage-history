@@ -1,4 +1,4 @@
-module service
+module microservice
 
 go 1.18
 
