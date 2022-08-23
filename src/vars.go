@@ -1,7 +1,10 @@
 // This file contains all globally used variables and their default values
 package main
 
-import "os"
+import (
+	"microservice/structs"
+	"os"
+)
 
 var (
 	// The host on which the API gateway runs and this service shall be registered on
@@ -14,4 +17,6 @@ var (
 	httpListenPort = os.Getenv("CONFIG_HTTP_LISTEN_PORT")
 	// Indicator if a health check shall be executed instead of the main() function
 	executeHealthcheck = false
+	// The scope the service was configured with
+	scope *structs.ScopeInformation
 )

@@ -1,0 +1,6 @@
+{
+  "$schema": "https://raw.githubusercontent.com/wisdom-oss/documentation/main/schemas/service-scope.schema.json",
+  "name": "Microservice Example Scope",
+  "description": "This scope allows the access to endpoints of the microservice",
+  "scopeStringValue": "replace-me"
+}

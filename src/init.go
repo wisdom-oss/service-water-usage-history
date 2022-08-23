@@ -3,8 +3,10 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	log "github.com/sirupsen/logrus"
+	"io/ioutil"
 	"microservice/helpers"
 	"os"
 	"strconv"
@@ -123,5 +125,30 @@ func init() {
 		logger.Fatalf("The api gateway on the host '%s' is not reachable on port '%s'", apiGatewayHost, apiGatewayAdminPort)
 	} else {
 		logger.Info("The api gateway is reachable via tcp")
+	}
+}
+
+/**
+Initialization Step 5 - Load the scope setup for this service
+
+This initialization step will load the supplied scope.json file to get the information needed for checking the incoming
+requests for the correct scope
+*/
+func init() {
+	logger := log.WithFields(log.Fields{
+		"initStep":     5,
+		"initStepName": "OAUTH2_SCOPE_CONFIGURATION",
+	})
+	logger.Info("Reading the scope configuration file from 'res/scope.json")
+	fileContents, err := ioutil.ReadFile("res/scope.json")
+	if err != nil {
+		logger.WithError(err).Fatal("Unable to read the contents of the scope configuration file")
+	}
+	logger.Debugf("Read the following file contents: %s", fileContents)
+	logger.Debug("Parsing the file contents into the scope configuration for the service")
+
+	parserError := json.Unmarshal(fileContents, &scope)
+	if parserError != nil {
+		logger.WithError(err).Fatal("Unable to parse the contents of 'res/scope.json'")
 	}
 }
