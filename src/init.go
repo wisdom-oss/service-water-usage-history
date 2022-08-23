@@ -7,6 +7,7 @@ import (
 	"flag"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
+	"microservice/gateway"
 	"microservice/helpers"
 	"os"
 	"strconv"
@@ -150,5 +151,20 @@ func init() {
 	parserError := json.Unmarshal(fileContents, &scope)
 	if parserError != nil {
 		logger.WithError(err).Fatal("Unable to parse the contents of 'res/scope.json'")
+	}
+}
+
+/**
+Initialization Step 6 - Register service in upstream of the microservice
+
+This initialization step will use the admin api of the api gateway to add itself to the upstream for the service
+instances. If no upstream is set up, one will be created automatically
+*/
+func init() {
+	// Since this is the fist call to the api gateway we need to prepare the calls to the gateway
+	gateway.PrepareGatewayConnections(serviceName, apiGatewayHost, apiGatewayAdminPort)
+	// Now check if the upstream is already set up
+	if !gateway.IsUpstreamSetUp() {
+		//TODO: Implement the upstream creation
 	}
 }
