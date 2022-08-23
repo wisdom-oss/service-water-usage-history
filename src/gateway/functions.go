@@ -159,3 +159,41 @@ func IsIPAddressInUpstreamTargets() bool {
 	logger.Warning("The target is not in the current upstream")
 	return false
 }
+
+func AddServiceToUpstreamTargets() bool {
+	logger := logger.WithFields(log.Fields{
+		"function":   "AddServiceToUpstreamTargets",
+		"upstreamId": Upstream.Id,
+	})
+	if !connectionsPrepared {
+		logger.
+			Warning("The gateway connections have not been prepared before calling this method")
+	}
+	// Get the local IP address of the container
+	localIPAddress := helpers.GetLocalIP()
+	targetAddress := localIPAddress + ":" + httpListenPort
+	logger.
+		WithField("targetAddress", targetAddress).
+		Info("Registering the service instance as target in the upstream for this service")
+	// Create the request body
+	requestBody := url.Values{}
+	requestBody.Set("target", targetAddress)
+	// Send the request body to the gateway
+	response, err := http.PostForm(gatewayAPIUrl+"/upstreams/"+Upstream.Id+"/targets", requestBody)
+	if err != nil {
+		logger.
+			WithError(err).
+			Error("An error occurred while sending the request to the api gateway")
+		return false
+	}
+	// Now check if the response code is 201 indicating that the target has been created
+	if response.StatusCode != 201 {
+		logger.
+			Warning("The gateway did not respond with a 201 Created to the request. " +
+				"The target may not have been created. Use the function 'gateway.IsIPAddressInUpstreamTargets(" +
+				")' to test again")
+		return false
+	}
+	logger.Info("The target was successfully created in the upstream")
+	return true
+}
