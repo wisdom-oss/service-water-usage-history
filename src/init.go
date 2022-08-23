@@ -165,6 +165,6 @@ func init() {
 	gateway.PrepareGatewayConnections(serviceName, apiGatewayHost, apiGatewayAdminPort)
 	// Now check if the upstream is already set up
 	if !gateway.IsUpstreamSetUp() {
-		//TODO: Implement the upstream creation
+		gateway.CreateUpstream()
 	}
 }
