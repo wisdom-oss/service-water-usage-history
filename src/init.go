@@ -5,13 +5,14 @@ package main
 import (
 	"encoding/json"
 	"flag"
-	log "github.com/sirupsen/logrus"
 	"io/ioutil"
-	"microservice/gateway"
-	"microservice/helpers"
 	"os"
 	"strconv"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
+	"microservice/gateway"
+	"microservice/helpers"
 )
 
 /*
@@ -162,9 +163,13 @@ instances. If no upstream is set up, one will be created automatically
 */
 func init() {
 	// Since this is the fist call to the api gateway we need to prepare the calls to the gateway
-	gateway.PrepareGatewayConnections(serviceName, apiGatewayHost, apiGatewayAdminPort)
+	gateway.PrepareGatewayConnections(serviceName, apiGatewayHost, apiGatewayAdminPort, httpListenPort)
 	// Now check if the upstream is already set up
 	if !gateway.IsUpstreamSetUp() {
 		gateway.CreateUpstream()
+	}
+	// Now check if this service instance is listed in the upstreams targets
+	if !gateway.IsIPAddressInUpstreamTargets() {
+		gateway.AddServiceToUpstreamTargets()
 	}
 }
