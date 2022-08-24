@@ -9,6 +9,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"microservice/helpers"
+	"microservice/vars"
 )
 
 var gatewayAPIUrl = ""
@@ -36,21 +37,16 @@ PrepareGatewayConnections
 
 Call this function once before calling the api gateway to prepare the gatewayAPIUrl. T
 */
-func PrepareGatewayConnections(
-	serviceName string,
-	host string,
-	adminAPIPort string,
-	listenPort string,
-	serviceRoutePath string) {
-	gatewayAPIUrl = fmt.Sprintf("http://%s:%s", host, adminAPIPort)
+func PrepareGatewayConnections() {
+	gatewayAPIUrl = fmt.Sprintf("http://%s:%s", vars.ApiGatewayHost, vars.ApiGatewayAdminPort)
 	logger.Info("Set the gatewayAPIUrl")
-	gatewayUpstreamName = fmt.Sprintf("upstream_%s", serviceName)
+	gatewayUpstreamName = fmt.Sprintf("upstream_%s", vars.ServiceName)
 	logger.Info("Successfully set the gateway upstream name")
-	gatewayServiceName = fmt.Sprintf("service_%s", serviceName)
+	gatewayServiceName = fmt.Sprintf("service_%s", vars.ServiceName)
 	logger.Info("Successfully set the gateway service name")
-	httpListenPort = listenPort
+	httpListenPort = vars.HttpListenPort
 	logger.Info("Successfully set the http listen port")
-	gatewayServiceRoutePath = serviceRoutePath
+	gatewayServiceRoutePath = vars.HttpListenPort
 	logger.Info("Successfully set the gateway service route path")
 
 	connectionsPrepared = true
