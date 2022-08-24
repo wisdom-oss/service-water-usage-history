@@ -26,6 +26,7 @@ var logger = log.WithFields(log.Fields{
 // Upstream
 // Information about the upstream used by this service
 var Upstream *UpstreamConfiguration
+var ServiceEntry *ServiceConfiguration
 
 /*
 PrepareGatewayConnections
@@ -195,5 +196,37 @@ func AddServiceToUpstreamTargets() bool {
 		return false
 	}
 	logger.Info("The target was successfully created in the upstream")
+	return true
+}
+
+/*
+IsServiceSetUp
+
+Check if a service was created in the gateway.
+A service is an object in the gateway which may be used to create new routes
+*/
+func IsServiceSetUp() bool {
+	logger := logger.WithFields(log.Fields{
+		"function": "IsServiceSetUp",
+	})
+	if !connectionsPrepared {
+		logger.
+			Warning("The gateway connections have not been prepared before calling this method")
+	}
+	logger.Info("Checking is a service entry exists on the gateway")
+	response, err := http.Get(gatewayAPIUrl + "/services/" + gatewayServiceName)
+	if err != nil {
+		logger.WithError(err).Error("An error occurred while sending the request to the api gateway")
+	}
+	if response.StatusCode != 200 {
+		logger.Warning("There is no service entry for this service in the gateway")
+		return false
+	}
+	decodeErr := json.NewDecoder(response.Body).Decode(&ServiceEntry)
+	if decodeErr != nil {
+		logger.WithError(decodeErr).Warning("Unable to parse the service information sent by the gateway")
+		return true
+	}
+	logger.Info("Found a service entry in the gateway")
 	return true
 }
