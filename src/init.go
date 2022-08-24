@@ -13,6 +13,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"microservice/gateway"
 	"microservice/helpers"
+	"microservice/vars"
 )
 
 /*
@@ -23,7 +24,7 @@ This initialization step will create a boolean flag which may trigger a healthch
 func init() {
 	// Create a new boolean variable flag which uses an existing variable pointer for the value to be assigned
 	flag.BoolVar(
-		&executeHealthcheck,
+		&vars.ExecuteHealthcheck,
 		"healthcheck",
 		false,
 		"Run a healthcheck of the service which will check if the service can call itself and is correctly setup on the API gateway",
@@ -86,24 +87,24 @@ func init() {
 	_, apiGatewayAdminPortSet := os.LookupEnv("CONFIG_API_GATEWAY_ADMIN_PORT")
 	_, apiGatewayServicePathSet := os.LookupEnv("CONFIG_API_GATEWAY_SERVICE_PATH")
 	// Now check the results of the environment variable lookup and check if the string did not only contain whitespaces
-	if !apiGatewayHostSet || strings.TrimSpace(apiGatewayHost) == "" {
+	if !apiGatewayHostSet || strings.TrimSpace(vars.ApiGatewayHost) == "" {
 		logger.Fatal("The required environment variable 'CONFIG_API_GATEWAY_HOST' is not populated.")
 	}
-	if !apiGatewayAdminPortSet || strings.TrimSpace(apiGatewayAdminPort) == "" {
+	if !apiGatewayAdminPortSet || strings.TrimSpace(vars.ApiGatewayAdminPort) == "" {
 		logger.Fatal("The required environment variable 'CONFIG_API_GATEWAY_ADMIN_PORT' is not populated.")
 	}
-	if !apiGatewayServicePathSet || strings.TrimSpace(apiGatewayServicePath) == "" {
+	if !apiGatewayServicePathSet || strings.TrimSpace(vars.ApiGatewayServicePath) == "" {
 		logger.Fatal("The required environment variable 'CONFIG_API_GATEWAY_SERVICE_PATH' is not populated.")
 	}
 	// Now check if the optional variables have been set. If not set their respective default values
 	// TODO: Add checks for own optional variables, if needed
 	_, httpListenPortSet := os.LookupEnv("CONFIG_HTTP_LISTEN_PORT")
 	if !httpListenPortSet {
-		httpListenPort = "8000"
+		vars.HttpListenPort = "8000"
 	}
-	if _, err := strconv.Atoi(httpListenPort); err != nil {
+	if _, err := strconv.Atoi(vars.HttpListenPort); err != nil {
 		logger.Warning("The http listen port which has been set is not a number. Defaulting to 8000")
-		httpListenPort = "8000"
+		vars.HttpListenPort = "8000"
 	}
 }
 
@@ -121,10 +122,13 @@ func init() {
 		"initStepName": "DEPENDENCY_CONNECTION_CHECK",
 	})
 	// Check if the kong admin api is reachable
-	logger.Infof("Checking if the api gateway on the host '%s' is reachable on port '%s'", apiGatewayHost, apiGatewayAdminPort)
-	gatewayReachable := helpers.PingHost(apiGatewayHost, apiGatewayAdminPort, 10)
+	logger.Infof("Checking if the api gateway on the host '%s' is reachable on port '%s'", vars.ApiGatewayHost,
+		vars.ApiGatewayAdminPort)
+	gatewayReachable := helpers.PingHost(vars.ApiGatewayHost,
+		vars.ApiGatewayAdminPort, 10)
 	if !gatewayReachable {
-		logger.Fatalf("The api gateway on the host '%s' is not reachable on port '%s'", apiGatewayHost, apiGatewayAdminPort)
+		logger.Fatalf("The api gateway on the host '%s' is not reachable on port '%s'", vars.ApiGatewayHost,
+			vars.ApiGatewayAdminPort)
 	} else {
 		logger.Info("The api gateway is reachable via tcp")
 	}
@@ -149,7 +153,7 @@ func init() {
 	logger.Debugf("Read the following file contents: %s", fileContents)
 	logger.Debug("Parsing the file contents into the scope configuration for the service")
 
-	parserError := json.Unmarshal(fileContents, &scope)
+	parserError := json.Unmarshal(fileContents, &vars.Scope)
 	if parserError != nil {
 		logger.WithError(err).Fatal("Unable to parse the contents of 'res/scope.json'")
 	}
@@ -163,7 +167,7 @@ instances. If no upstream is set up, one will be created automatically
 */
 func init() {
 	// Since this is the fist call to the api gateway we need to prepare the calls to the gateway
-	gateway.PrepareGatewayConnections(serviceName, apiGatewayHost, apiGatewayAdminPort, httpListenPort, apiGatewayServicePath)
+	gateway.PrepareGatewayConnections()
 	// Now check if the upstream is already set up
 	if !gateway.IsUpstreamSetUp() {
 		gateway.CreateUpstream()
