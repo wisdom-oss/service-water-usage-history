@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 	"microservice/helpers"
@@ -15,6 +16,7 @@ var gatewayUpstreamName = ""
 var gatewayServiceName = ""
 var connectionsPrepared = false
 var httpListenPort = ""
+var httpClient = &http.Client{}
 
 var logger = log.WithFields(log.Fields{
 	"localIP":             helpers.GetLocalIP(),
@@ -280,4 +282,47 @@ func IsUpstreamSetInServiceEntry() bool {
 			Warning("The gateway connections have not been prepared before calling this method")
 	}
 	return Upstream.Name == ServiceEntry.Host
+}
+
+/*
+SetUpstreamAsServiceEntryHost
+
+Set the upstream the service is connected to as the host in the service entry to allow routing to the upstream
+*/
+func SetUpstreamAsServiceEntryHost() bool {
+	logger := logger.WithFields(log.Fields{
+		"function": "SetUpstreamAsServiceEntryHost",
+	})
+	if !connectionsPrepared {
+		logger.
+			Warning("The gateway connections have not been prepared before calling this method")
+	}
+	logger.Info("Updating the service entry to use the upstream as host")
+	// Build the request body
+	requestBody := url.Values{}
+	requestBody.Set("host", Upstream.Name)
+
+	// Build the PATCH request
+	request, err := http.NewRequest("PATCH", gatewayAPIUrl+"/services/"+gatewayServiceName,
+		strings.NewReader(requestBody.Encode()))
+	if err != nil {
+		logger.WithError(err).Error("An error occurred while building the request to update the service entry")
+		return false
+	}
+	response, err := httpClient.Do(request)
+	if err != nil {
+		logger.WithError(err).Error("An error occurred while sending the request to the gateway")
+		return false
+	}
+	if response.StatusCode != 200 {
+		logger.WithField("httpCode", response.StatusCode).Error("The gateway did not confirm the change of the service entry.")
+		return false
+	}
+	decodeErr := json.NewDecoder(response.Body).Decode(&ServiceEntry)
+	if decodeErr != nil {
+		logger.WithError(decodeErr).Warning("Unable to parse the service information sent by the gateway")
+		return true
+	}
+	logger.Info("Updated the service entry successfully")
+	return true
 }
