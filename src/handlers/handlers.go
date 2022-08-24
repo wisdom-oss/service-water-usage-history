@@ -50,3 +50,12 @@ func AuthorizationCheck(nextHandler http.Handler) http.Handler {
 		nextHandler.ServeHTTP(w, r)
 	})
 }
+
+/*
+RequestHandler
+
+TODO: Write your own handler logic into this handler or use this handler as example
+*/
+func RequestHandler(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Hello World"))
+}
