@@ -6,3 +6,11 @@ type ScopeInformation struct {
 	ScopeDescription string `json:"description"`
 	ScopeValue       string `json:"scopeStringValue"`
 }
+
+type RequestError struct {
+	HttpStatus       int    `json:"httpCode"`
+	HttpError        string `json:"httpError"`
+	ErrorCode        string `json:"error"`
+	ErrorTitle       string `json:"errorName"`
+	ErrorDescription string `json:"errorDescription"`
+}
