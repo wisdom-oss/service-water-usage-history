@@ -230,3 +230,38 @@ func IsServiceSetUp() bool {
 	logger.Info("Found a service entry in the gateway")
 	return true
 }
+
+/*
+CreateServiceEntry
+
+Create a new service entry for this service in the gateway.
+*/
+func CreateServiceEntry() bool {
+	logger := logger.WithFields(log.Fields{
+		"function": "CreateServiceEntry",
+	})
+	if !connectionsPrepared {
+		logger.
+			Warning("The gateway connections have not been prepared before calling this method")
+	}
+	// Build the request body for the request
+	requestBody := url.Values{}
+	requestBody.Set("name", gatewayServiceName)
+	// Send the request to the gateway
+	response, err := http.PostForm(gatewayAPIUrl+"/services", requestBody)
+	if err != nil {
+		logger.WithError(err).Error("An error occurred while sending the request to the api gateway")
+		return false
+	}
+	if response.StatusCode != 201 {
+		logger.WithField("httpCode", response.StatusCode).Error("The gateway did not report the creation of the service entry")
+		return false
+	}
+	decodeErr := json.NewDecoder(response.Body).Decode(&ServiceEntry)
+	if decodeErr != nil {
+		logger.WithError(decodeErr).Warning("Unable to parse the service information sent by the gateway")
+		return true
+	}
+	logger.Info("Created a service entry in the gateway")
+	return true
+}
