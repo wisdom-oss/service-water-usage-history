@@ -13,17 +13,22 @@ import (
 )
 
 const UnauthorizedRequest = "UNAUTHORIZED_REQUEST"
+const MissingScope = "SCOPE_MISSING"
 
 var errorTitle = map[string]string{
 	UnauthorizedRequest: "Unauthorized Request",
+	MissingScope:        "Forbidden",
 }
 
 var errorDescription = map[string]string{
 	UnauthorizedRequest: "The resource you tried to access requires authorization. Please check your request",
+	MissingScope: "Ypu tried to access a resource which is protected by a scope. " +
+		"Your authorization information did not contain the required scope.",
 }
 
 var httpStatus = map[string]int{
 	UnauthorizedRequest: http.StatusUnauthorized,
+	MissingScope:        http.StatusForbidden,
 }
 
 func NewRequestError(errorCode string) structs.RequestError {
