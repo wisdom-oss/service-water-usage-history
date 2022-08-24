@@ -33,3 +33,29 @@ type ServiceConfiguration struct {
 	CaCertificates []string    `json:"ca_certificates"`
 	Enabled        bool        `json:"enabled"`
 }
+
+type RouteInformation struct {
+	Id        string   `json:"id"`
+	CreatedAt float64  `json:"created_at"`
+	UpdatedAt float64  `json:"updated_at"`
+	Name      string   `json:"name"`
+	Protocols []string `json:"protocols"`
+	Methods   []string `json:"methods"`
+	Hosts     []string `json:"hosts"`
+	Paths     []string `json:"paths"`
+	Headers   struct {
+		XAnotherHeader []string `json:"x-another-header"`
+		XMyHeader      []string `json:"x-my-header"`
+	} `json:"headers"`
+	HttpsRedirectStatusCode int      `json:"https_redirect_status_code"`
+	RegexPriority           int      `json:"regex_priority"`
+	StripPath               bool     `json:"strip_path"`
+	PathHandling            string   `json:"path_handling"`
+	PreserveHost            bool     `json:"preserve_host"`
+	RequestBuffering        bool     `json:"request_buffering"`
+	ResponseBuffering       bool     `json:"response_buffering"`
+	Tags                    []string `json:"tags"`
+	Service                 struct {
+		Id string `json:"id"`
+	} `json:"service"`
+}
