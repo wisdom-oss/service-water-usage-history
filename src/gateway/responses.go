@@ -60,3 +60,8 @@ type TargetList struct {
 	Targets []TargetInformation `json:"data"`
 	Next    string              `json:"next"`
 }
+
+type RouteList struct {
+	Routes []RouteInformation `json:"data"`
+	Next   string             `json:"next"`
+}
