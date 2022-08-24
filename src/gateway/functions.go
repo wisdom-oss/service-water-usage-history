@@ -265,3 +265,19 @@ func CreateServiceEntry() bool {
 	logger.Info("Created a service entry in the gateway")
 	return true
 }
+
+/*
+IsUpstreamSetInServiceEntry
+
+Check if the currently used service entry has the upstream set as host
+*/
+func IsUpstreamSetInServiceEntry() bool {
+	logger := logger.WithFields(log.Fields{
+		"function": "IsUpstreamSetInServiceEntry",
+	})
+	if !connectionsPrepared {
+		logger.
+			Warning("The gateway connections have not been prepared before calling this method")
+	}
+	return Upstream.Name == ServiceEntry.Host
+}
