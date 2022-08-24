@@ -375,3 +375,48 @@ func IsRouteConfigured() bool {
 	logger.Warning("There was no route configuration found for this service entry matching the configuration")
 	return false
 }
+
+/*
+ConfigureRoute
+
+Configure a route entry matching the configuration to allow access to the microservice
+*/
+func ConfigureRoute() bool {
+	logger := logger.WithFields(log.Fields{
+		"function": "ConfigureRoute",
+	})
+	if !connectionsPrepared {
+		logger.
+			Warning("The gateway connections have not been prepared before calling this method")
+	}
+	logger.Info("Creating a new route entry for the service")
+
+	// Build the request body
+	requestBody := url.Values{}
+	requestBody.Set("paths", gatewayServiceRoutePath)
+	requestBody.Set("protocols[]", "http")
+
+	// Send the request to the gateway
+	response, err := http.PostForm(gatewayAPIUrl+"/services/"+ServiceEntry.Id+"/routes", requestBody)
+	if err != nil {
+		logger.WithError(err).Error("An error occurred while sending the request to the gateway.")
+	}
+	if response.StatusCode != 200 && response.StatusCode != 201 {
+		logger.WithField("httpCode", response.StatusCode).Error("The gateway did not respond with the correct status")
+	}
+	var route RouteInformation
+	parsingError := json.NewDecoder(response.Body).Decode(&route)
+	if parsingError != nil {
+		logger.WithError(parsingError).Warning("Unable to parse the response sent by the gateway, " +
+			"but the status code reports a success")
+		return true
+	}
+	if helpers.StringArrayContains(route.Paths, gatewayServiceRoutePath) {
+		logger.Info("Successfully configured route for this service")
+		return true
+	} else {
+		logger.Warning("The status code reported a success but the path was not found in the route")
+		return true
+	}
+
+}
