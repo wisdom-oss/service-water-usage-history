@@ -14,6 +14,7 @@ import (
 var gatewayAPIUrl = ""
 var gatewayUpstreamName = ""
 var gatewayServiceName = ""
+var gatewayServiceRoutePath = ""
 var connectionsPrepared = false
 var httpListenPort = ""
 var httpClient = &http.Client{}
@@ -35,7 +36,12 @@ PrepareGatewayConnections
 
 Call this function once before calling the api gateway to prepare the gatewayAPIUrl. T
 */
-func PrepareGatewayConnections(serviceName string, host string, adminAPIPort string, listenPort string) {
+func PrepareGatewayConnections(
+	serviceName string,
+	host string,
+	adminAPIPort string,
+	listenPort string,
+	serviceRoutePath string) {
 	gatewayAPIUrl = fmt.Sprintf("http://%s:%s", host, adminAPIPort)
 	logger.Info("Set the gatewayAPIUrl")
 	gatewayUpstreamName = fmt.Sprintf("upstream_%s", serviceName)
@@ -43,6 +49,10 @@ func PrepareGatewayConnections(serviceName string, host string, adminAPIPort str
 	gatewayServiceName = fmt.Sprintf("service_%s", serviceName)
 	logger.Info("Successfully set the gateway service name")
 	httpListenPort = listenPort
+	logger.Info("Successfully set the http listen port")
+	gatewayServiceRoutePath = serviceRoutePath
+	logger.Info("Successfully set the gateway service route path")
+
 	connectionsPrepared = true
 }
 
@@ -325,4 +335,43 @@ func SetUpstreamAsServiceEntryHost() bool {
 	}
 	logger.Info("Updated the service entry successfully")
 	return true
+}
+
+/*
+IsRouteConfigured
+
+Check if the service entry has a route configured and the route matches the one set in the environment variables
+*/
+func IsRouteConfigured() bool {
+	logger := logger.WithFields(log.Fields{
+		"function": "IsRouteConfigured",
+	})
+	if !connectionsPrepared {
+		logger.
+			Warning("The gateway connections have not been prepared before calling this method")
+	}
+	// Request the routes which are configured in the gateway for this service entry
+	response, err := http.Get(gatewayAPIUrl + "/services/" + ServiceEntry.Id + "/routes")
+	if err != nil {
+		logger.WithError(err).Error("An error occurred while requesting the routes configured for the service entry")
+		return false
+	}
+	if response.StatusCode != 200 {
+		logger.WithField("httpCode", response.StatusCode).Error("The gateway did not respond with the correct status")
+		return false
+	}
+	var routeList RouteList
+	parsingError := json.NewDecoder(response.Body).Decode(&routeList)
+	if parsingError != nil {
+		logger.WithError(parsingError).Error("Unable to parse the response from the gateway")
+		return false
+	}
+	for _, route := range routeList.Routes {
+		if helpers.StringArrayContains(route.Paths, gatewayServiceRoutePath) {
+			logger.Info("The service entry has a route configured matching the requested one")
+			return true
+		}
+	}
+	logger.Warning("There was no route configuration found for this service entry matching the configuration")
+	return false
 }
