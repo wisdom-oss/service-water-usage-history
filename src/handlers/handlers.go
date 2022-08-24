@@ -52,6 +52,15 @@ func AuthorizationCheck(nextHandler http.Handler) http.Handler {
 }
 
 /*
+PingHandler
+
+This handler is used to test if the service is able to ping itself. This is done to run a healthcheck on the container
+*/
+func PingHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNoContent)
+}
+
+/*
 RequestHandler
 
 TODO: Write your own handler logic into this handler or use this handler as example
