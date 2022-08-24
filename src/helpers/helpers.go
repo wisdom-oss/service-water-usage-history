@@ -2,9 +2,10 @@ package helpers
 
 import (
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"net"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 /*
@@ -53,4 +54,13 @@ func GetLocalIP() string {
 		}
 	}
 	return ""
+}
+
+func StringArrayContains(a []string, s string) bool {
+	for _, item := range a {
+		if item == s {
+			return true
+		}
+	}
+	return false
 }
