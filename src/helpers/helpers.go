@@ -56,9 +56,28 @@ func GetLocalIP() string {
 	return ""
 }
 
+/*
+StringArrayContains
+
+Check if the string array contains the string s as item
+*/
 func StringArrayContains(a []string, s string) bool {
 	for _, item := range a {
 		if item == s {
+			return true
+		}
+	}
+	return false
+}
+
+/*
+StringArrayContainsAnyElement
+
+Check if the string array a contains any element of array b
+*/
+func StringArrayContainsAnyElement(a []string, b []string) bool {
+	for _, item := range b {
+		if StringArrayContains(a, item) {
 			return true
 		}
 	}
