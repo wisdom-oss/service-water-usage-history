@@ -160,7 +160,7 @@ func init() {
 
 	parserError := json.Unmarshal(fileContents, &vars.Scope)
 	if parserError != nil {
-		logger.WithError(err).Fatalf("Unable to parse the contents of '%s'", vars.ScopeConfigFilePath)
+		logger.WithError(parserError).Fatalf("Unable to parse the contents of '%s'", vars.ScopeConfigFilePath)
 	}
 }
 
