@@ -46,7 +46,7 @@ func PrepareGatewayConnections() {
 	logger.Info("Successfully set the gateway service name")
 	httpListenPort = vars.HttpListenPort
 	logger.Info("Successfully set the http listen port")
-	gatewayServiceRoutePath = vars.HttpListenPort
+	gatewayServiceRoutePath = vars.ApiGatewayServicePath
 	logger.Info("Successfully set the gateway service route path")
 
 	connectionsPrepared = true
