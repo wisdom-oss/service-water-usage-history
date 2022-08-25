@@ -19,6 +19,10 @@ var (
 	HttpListenPort string
 	// Indicator if a health check shall be executed instead of the main() function
 	ExecuteHealthcheck bool
+	// ScopeConfigFilePath
+	// The path to the location where the scope configuration is stored.
+	// Default: /microservice/res/scope.json
+	ScopeConfigFilePath string
 	// The scope the service was configured with
 	Scope *structs.ScopeInformation
 )

@@ -83,7 +83,7 @@ func init() {
 	logger.Debug("Validating the required environment variables for their existence and if the variables are not empty")
 	// Use os.LookupEnv to check if the variables are existent in the environment, but ignore their values since
 	// they have already been read once
-	var apiGatewayHostSet, apiGatewayAdminPortSet, apiGatewayServicePathSet, httpListenPortSet bool
+	var apiGatewayHostSet, apiGatewayAdminPortSet, apiGatewayServicePathSet, httpListenPortSet, scopeConfigFilePathSet bool
 	vars.ApiGatewayHost, apiGatewayHostSet = os.LookupEnv("CONFIG_API_GATEWAY_HOST")
 	vars.ApiGatewayAdminPort, apiGatewayAdminPortSet = os.LookupEnv("CONFIG_API_GATEWAY_ADMIN_PORT")
 	vars.ApiGatewayServicePath, apiGatewayServicePathSet = os.LookupEnv("CONFIG_API_GATEWAY_SERVICE_PATH")
@@ -106,6 +106,10 @@ func init() {
 	if _, err := strconv.Atoi(vars.HttpListenPort); err != nil {
 		logger.Warning("The http listen port which has been set is not a number. Defaulting to 8000")
 		vars.HttpListenPort = "8000"
+	}
+	vars.ScopeConfigFilePath, scopeConfigFilePathSet = os.LookupEnv("CONFIG_SCOPE_FILE_PATH")
+	if !scopeConfigFilePathSet {
+		vars.ScopeConfigFilePath = "/microservice/res/scope.json"
 	}
 }
 
@@ -146,8 +150,8 @@ func init() {
 		"initStep":     5,
 		"initStepName": "OAUTH2_SCOPE_CONFIGURATION",
 	})
-	logger.Info("Reading the scope configuration file from 'res/scope.json")
-	fileContents, err := ioutil.ReadFile("res/scope.json")
+	logger.Infof("Reading the scope configuration file from '%s'", vars.ScopeConfigFilePath)
+	fileContents, err := ioutil.ReadFile(vars.ScopeConfigFilePath)
 	if err != nil {
 		logger.WithError(err).Fatal("Unable to read the contents of the scope configuration file")
 	}
@@ -156,7 +160,7 @@ func init() {
 
 	parserError := json.Unmarshal(fileContents, &vars.Scope)
 	if parserError != nil {
-		logger.WithError(err).Fatal("Unable to parse the contents of 'res/scope.json'")
+		logger.WithError(err).Fatalf("Unable to parse the contents of '%s'", vars.ScopeConfigFilePath)
 	}
 }
 
