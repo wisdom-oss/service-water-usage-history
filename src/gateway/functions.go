@@ -252,6 +252,8 @@ func CreateServiceEntry() bool {
 	// Build the request body for the request
 	requestBody := url.Values{}
 	requestBody.Set("name", gatewayServiceName)
+	// Set the host to localhost since it is required. This will be changed in another step
+	requestBody.Set("host", "localhost")
 	// Send the request to the gateway
 	response, err := http.PostForm(gatewayAPIUrl+"/services", requestBody)
 	if err != nil {
