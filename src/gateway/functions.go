@@ -310,6 +310,7 @@ func SetUpstreamAsServiceEntryHost() bool {
 	// Build the PATCH request
 	request, err := http.NewRequest("PATCH", gatewayAPIUrl+"/services/"+gatewayServiceName,
 		strings.NewReader(requestBody.Encode()))
+	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	if err != nil {
 		logger.WithError(err).Error("An error occurred while building the request to update the service entry")
 		return false
