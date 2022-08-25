@@ -390,7 +390,7 @@ func ConfigureRoute() bool {
 	// Build the request body
 	requestBody := url.Values{}
 	requestBody.Set("paths", gatewayServiceRoutePath)
-	requestBody.Set("protocols[]", "http")
+	requestBody.Set("protocols", "http")
 
 	// Send the request to the gateway
 	response, err := http.PostForm(gatewayAPIUrl+"/services/"+ServiceEntry.Id+"/routes", requestBody)
