@@ -83,9 +83,10 @@ func init() {
 	logger.Debug("Validating the required environment variables for their existence and if the variables are not empty")
 	// Use os.LookupEnv to check if the variables are existent in the environment, but ignore their values since
 	// they have already been read once
-	_, apiGatewayHostSet := os.LookupEnv("CONFIG_API_GATEWAY_HOST")
-	_, apiGatewayAdminPortSet := os.LookupEnv("CONFIG_API_GATEWAY_ADMIN_PORT")
-	_, apiGatewayServicePathSet := os.LookupEnv("CONFIG_API_GATEWAY_SERVICE_PATH")
+	var apiGatewayHostSet, apiGatewayAdminPortSet, apiGatewayServicePathSet, httpListenPortSet bool
+	vars.ApiGatewayHost, apiGatewayHostSet = os.LookupEnv("CONFIG_API_GATEWAY_HOST")
+	vars.ApiGatewayAdminPort, apiGatewayAdminPortSet = os.LookupEnv("CONFIG_API_GATEWAY_ADMIN_PORT")
+	vars.ApiGatewayServicePath, apiGatewayServicePathSet = os.LookupEnv("CONFIG_API_GATEWAY_SERVICE_PATH")
 	// Now check the results of the environment variable lookup and check if the string did not only contain whitespaces
 	if !apiGatewayHostSet || strings.TrimSpace(vars.ApiGatewayHost) == "" {
 		logger.Fatal("The required environment variable 'CONFIG_API_GATEWAY_HOST' is not populated.")
@@ -98,7 +99,7 @@ func init() {
 	}
 	// Now check if the optional variables have been set. If not set their respective default values
 	// TODO: Add checks for own optional variables, if needed
-	_, httpListenPortSet := os.LookupEnv("CONFIG_HTTP_LISTEN_PORT")
+	vars.HttpListenPort, httpListenPortSet = os.LookupEnv("CONFIG_HTTP_LISTEN_PORT")
 	if !httpListenPortSet {
 		vars.HttpListenPort = "8000"
 	}

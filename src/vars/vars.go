@@ -2,8 +2,6 @@
 package vars
 
 import (
-	"os"
-
 	"microservice/structs"
 )
 
@@ -12,15 +10,15 @@ const ServiceName = "change-me"
 
 var (
 	// The host on which the API gateway runs and this service shall be registered on
-	ApiGatewayHost = os.Getenv("CONFIG_API_GATEWAY_HOST")
+	ApiGatewayHost string
 	// The administration port of the api gateway on the host
-	ApiGatewayAdminPort = os.Getenv("CONFIG_API_GATEWAY_ADMIN_PORT")
+	ApiGatewayAdminPort string
 	// The path on which the service shall be reachable
-	ApiGatewayServicePath = os.Getenv("CONFIG_API_GATEWAY_SERVICE_PATH")
+	ApiGatewayServicePath string
 	// The http port on which the service will listen for new requests
-	HttpListenPort = os.Getenv("CONFIG_HTTP_LISTEN_PORT")
+	HttpListenPort string
 	// Indicator if a health check shall be executed instead of the main() function
-	ExecuteHealthcheck = false
+	ExecuteHealthcheck bool
 	// The scope the service was configured with
 	Scope *structs.ScopeInformation
 )
