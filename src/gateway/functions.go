@@ -21,10 +21,7 @@ var httpListenPort = ""
 var httpClient = &http.Client{}
 
 var logger = log.WithFields(log.Fields{
-	"localIP":             helpers.GetLocalIP(),
-	"gatewayAPIUrl":       gatewayAPIUrl,
-	"gatewayUpstreamName": gatewayUpstreamName,
-	"gatewayServiceName":  gatewayServiceName,
+	"localIP": helpers.GetLocalIP(),
 })
 
 // Upstream
