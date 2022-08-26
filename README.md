@@ -1,21 +1,23 @@
-# WISdoM OSS - Consumer Management Service
+# WISdoM OSS - Golang Microservice Template
 
-This microservice deploys an interface to manage the consumers present in the
-database. The documentation of the RESTful-API is stored in the
-[openapi.yaml](openapi.yaml) file in the root directory of the repository.
+This repository contains the source code for a new microservice. You may use this source code
+for creating a new microservice which automatically registers at the api gateway and sets up
+a route on the gateway if needed.
 
-## Deployment
-This service is included in the standard installation of the project since it is
-one of the core services.
+**DO NOT FORK THIS REPOSITORY SINCE THE COMMIT HISTORY WILL BE TRANSFERRED INTO THE NEW REPOSITORY**
 
-## Access
-This microservice will register itself to the API gateway of the installation.
-Therefore, you can access this service on the following path, if the path is
-not changed manually: `https://<your-server-address>/api/consumers`
+## Development Steps
+0. Install Golang on your development machine if not already installed
+1. Download the repository as archive to your development machine
+2. Create a new empty repository for your new service
+3. Decompress the downloaded archive into the empty repository
+4. You may now make your initial commit in the repository
+5. Look for all TODOs in the files and act according to the TODOs
+6. Enjoy writing your own microservice
 
 ## Configuration
 
-The microservice is configurable via the following environment variables:
+The microservice template is configurable via the following environment variables:
 - `CONFIG_LOGGING_LEVEL` &#8594; Set the logging verbosity [optional, default `INFO`]
 - `CONFIG_API_GATEWAY_HOST` &#8594; Set the host on which the API Gateway runs on **[required]**
 - `CONFIG_API_GATEWAY_ADMIN_PORT` &#8594; Set the port on which the API Gateway listens on **[required]**
