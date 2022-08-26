@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	log "github.com/sirupsen/logrus"
-	"microservice/errors"
+	e "microservice/errors"
 	"microservice/helpers"
 	"microservice/vars"
 )
@@ -24,7 +24,7 @@ func AuthorizationCheck(nextHandler http.Handler) http.Handler {
 		// Check if the string is empty
 		if strings.TrimSpace(scopes) == "" {
 			logger.Warning("Unauthorized request detected. The required header had no content or was not set")
-			requestError := errors.NewRequestError(errors.UnauthorizedRequest)
+			requestError := e.NewRequestError(e.UnauthorizedRequest)
 			w.Header().Set("Content-Type", "text/json")
 			w.WriteHeader(requestError.HttpStatus)
 			encodingError := json.NewEncoder(w).Encode(requestError)
@@ -37,7 +37,7 @@ func AuthorizationCheck(nextHandler http.Handler) http.Handler {
 		scopeList := strings.Split(scopes, ",")
 		if !helpers.StringArrayContains(scopeList, vars.Scope.ScopeValue) {
 			logger.Error("Request rejected. The user is missing the scope needed for accessing this service")
-			requestError := errors.NewRequestError(errors.MissingScope)
+			requestError := e.NewRequestError(e.MissingScope)
 			w.Header().Set("Content-Type", "text/json")
 			w.WriteHeader(requestError.HttpStatus)
 			encodingError := json.NewEncoder(w).Encode(requestError)
@@ -56,15 +56,20 @@ PingHandler
 
 This handler is used to test if the service is able to ping itself. This is done to run a healthcheck on the container
 */
-func PingHandler(w http.ResponseWriter, r *http.Request) {
+func PingHandler(w http.ResponseWriter, _ *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
 /*
-RequestHandler
+BasicHandler
 
-TODO: Write your own handler logic into this handler or use this handler as example
+This handler shows how a basic handler works and how to send back a message
 */
-func RequestHandler(w http.ResponseWriter, r *http.Request) {
+func BasicHandler(w http.ResponseWriter, r *http.Request) {
+	logger := log.WithFields(log.Fields{
+		"middleware": true,
+		"title":      "BasicHandler",
+	})
+	logger.Info("Got new request")
 	w.Write([]byte("Hello World"))
 }
