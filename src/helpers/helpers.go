@@ -27,11 +27,11 @@ Parameters:
 
 The function returns true if the connection was successful. Else it will return false
 */
-func PingHost(host string, port string, timeout int) bool {
+func PingHost(host string, port int, timeout int) bool {
 	// Build the connection timeout
 	connectionTimeout := time.Duration(timeout) * time.Second
 	// Build the tcp connection target string
-	connectionTarget := fmt.Sprintf("%s:%s", host, port)
+	connectionTarget := fmt.Sprintf("%s:%d", host, port)
 	// Open a tcp connection with the parameters
 	_, connectionError := net.DialTimeout("tcp", connectionTarget, connectionTimeout)
 	if connectionError != nil {
