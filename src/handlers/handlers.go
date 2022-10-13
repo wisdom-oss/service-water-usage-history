@@ -35,7 +35,7 @@ func AuthorizationCheck(nextHandler http.Handler) http.Handler {
 		}
 
 		scopeList := strings.Split(scopes, ",")
-		if !helpers.StringArrayContains(scopeList, vars.Scope.ScopeValue) {
+		if !helpers.StringArrayContains(scopeList, vars.ScopeConfiguration.ScopeValue) {
 			logger.Error("Request rejected. The user is missing the scope needed for accessing this service")
 			requestError := e.NewRequestError(e.MissingScope)
 			w.Header().Set("Content-Type", "text/json")
@@ -71,5 +71,8 @@ func BasicHandler(w http.ResponseWriter, r *http.Request) {
 		"title":      "BasicHandler",
 	})
 	logger.Info("Got new request")
-	w.Write([]byte("Hello World"))
+	_, err := w.Write([]byte("Hello World"))
+	if err != nil {
+		log.WithError(err).Error("Unable to send response to the client")
+	}
 }
