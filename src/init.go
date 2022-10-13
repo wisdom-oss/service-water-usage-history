@@ -100,7 +100,7 @@ func init() {
 	if !apiGatewayHostSet || strings.TrimSpace(vars.ApiGatewayHost) == "" {
 		logger.Fatal("The required environment variable 'CONFIG_API_GATEWAY_HOST' is not populated.")
 	}
-	if !apiGatewayAdminPortSet || strings.TrimSpace(vars.ApiGatewayAdminPort) == "" {
+	if !apiGatewayAdminPortSet || strings.TrimSpace(tmpAdminPort) == "" {
 		logger.Fatal("The required environment variable 'CONFIG_API_GATEWAY_ADMIN_PORT' is not populated.")
 	}
 	if !apiGatewayServicePathSet || strings.TrimSpace(vars.ApiGatewayServicePath) == "" {
@@ -131,6 +131,17 @@ func init() {
 		logger.Warning("The postgres port which has been set is not a number. Defaulting to 5432")
 		vars.PostgresPort = "5432"
 	}
+	if !apiGatewayAdminPortSet {
+		vars.ApiGatewayAdminPort = 8001
+	}
+	tmpAdminPortInt, err := strconv.Atoi(tmpAdminPort)
+	if err != nil {
+		logger.Warning("The gateway admin api port has not been set to a number. Defaulting to 8001")
+		vars.ApiGatewayAdminPort = 8001
+	} else {
+		vars.ApiGatewayAdminPort = tmpAdminPortInt
+	}
+
 	vars.ScopeConfigFilePath, scopeConfigFilePathSet = os.LookupEnv("CONFIG_SCOPE_FILE_PATH")
 	if !scopeConfigFilePathSet {
 		vars.ScopeConfigFilePath = "/microservice/res/scope.json"

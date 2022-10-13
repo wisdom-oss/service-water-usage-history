@@ -22,7 +22,7 @@ var (
 
 		The port on which the admin api of the gateway listens for incoming requests.
 	*/
-	ApiGatewayAdminPort string
+	ApiGatewayAdminPort int
 	/*
 		ApiGatewayServicePath
 
