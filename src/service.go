@@ -19,7 +19,8 @@ This function is used to set up the http server for the microservice
 */
 func main() {
 	if vars.ExecuteHealthcheck {
-		response, err := http.Get("http://localhost:" + vars.ListenPort + "/ping")
+		healthcheckUrl := fmt.Sprintf("http://localhost:%d/ping", vars.ListenPort)
+		response, err := http.Get(healthcheckUrl)
 		if err != nil {
 			os.Exit(1)
 		}
@@ -32,16 +33,13 @@ func main() {
 	// Set up the routing of the different functions
 	router := mux.NewRouter()
 	router.HandleFunc("/ping", handlers.PingHandler)
-	router.Handle(
-		"/",
-		handlers.AuthorizationCheck(
-			http.HandlerFunc(handlers.BasicHandler),
-		),
-	)
+	router.Handle("/", handlers.AuthorizationCheck(
+		http.HandlerFunc(handlers.BasicHandler),
+	))
 
 	// Configure the HTTP server
 	server := &http.Server{
-		Addr:         fmt.Sprintf("0.0.0.0:%s", vars.ListenPort),
+		Addr:         fmt.Sprintf("0.0.0.0:%d", vars.ListenPort),
 		WriteTimeout: time.Second * 15,
 		ReadTimeout:  time.Second * 15,
 		IdleTimeout:  time.Second * 60,
