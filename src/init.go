@@ -19,6 +19,30 @@ import (
 	"microservice/vars"
 )
 
+// RequiredSettings associates the name of a environment variable with a pointer to the storage location of the value
+var RequiredSettings = map[string]*string{
+	"CONFIG_API_GATEWAY_HOST":         &vars.APIGatewayHost,
+	"CONFIG_POSTGRES_HOST":            &vars.DatabaseHost,
+	"CONFIG_POSTGRES_USER":            &vars.DatabaseUser,
+	"CONFIG_POSTGRES_PASSWORD":        &vars.DatabaseUserPassword,
+	"CONFIG_API_GATEWAY_SERVICE_PATH": &vars.ServiceRoutePath,
+	// TODO: Add own required settings
+}
+
+//OptionalIntSettings associates the name of an environment variable with a pointer to the storage location of the
+//value. If the value is not found a default value will be loaded
+var OptionalIntSettings = map[string]*int{
+	"CONFIG_HTTP_LISTEN_PORT":       &vars.ListenPort,
+	"CONFIG_POSTGRES_PORT":          &vars.DatabasePort,
+	"CONFIG_API_GATEWAY_ADMIN_PORT": &vars.APIGatewayPort,
+}
+
+//OptionalStringSettings associates the name of an environment variable with a pointer to the storage location of the
+//value. If the value is not found a default value will be loaded
+var OptionalStringSettings = map[string]*string{
+	"CONFIG_SCOPE_FILE_PATH": &vars.ScopeConfigurationPath,
+}
+
 /*
 Initialization Step 1 - Flag Creation
 
@@ -168,7 +192,7 @@ func init() {
 /**
 Initialization Step 5 - Load the scope setup for this service
 
-This initialization step will load the supplied scope.json file to get the information needed for checking the incoming
+This initialization step will load the supplied scope-example.json file to get the information needed for checking the incoming
 requests for the correct scope
 */
 func init() {
@@ -197,34 +221,40 @@ This initialization step will use the admin api of the api gateway to add itself
 instances. If no upstream is set up, one will be created automatically
 */
 func init() {
+	logger := log.WithFields(log.Fields{
+		"initStep":     6,
+		"initStepName": "GATEWAY_SET_UP",
+	})
 	if !vars.ExecuteHealthcheck {
 		setupErr := gateway.SetUpGatewayConnection(vars.APIGatewayHost, vars.APIGatewayPort, false)
 		if setupErr != nil {
-			log.WithError(setupErr).Fatal("Unable to set up the connection to the api gateway")
+			logger.WithError(setupErr).Fatal("Unable to set up the connection to the api gateway")
 		}
 		upstreamSetUp, err := gateway.IsUpstreamSetUp(vars.ServiceName)
 		if err != nil {
-			log.WithError(err).Fatal("Unable to check if the service already has a upstream set up")
+			logger.WithError(err).Fatal("Unable to check if the service already has a upstream set up")
 		}
 		if !upstreamSetUp {
 			upstreamCreated, err := gateway.CreateNewUpstream(vars.ServiceName)
 			if err != nil {
-				log.WithError(err).Fatal("Unable to create a new upstream for this microservice")
+				logger.WithError(err).Fatal("Unable to create a new upstream for this microservice")
 			}
 			if !upstreamCreated {
-				log.Fatal("The upstream was not created even though no error occurred")
+				logger.Fatal("The upstream was not created even though no error occurred")
 			} else {
-				log.Info("Successfully created a new upstream for the microservice")
+				logger.Info("Successfully created a new upstream for the microservice")
 			}
+		} else {
+			logger.Info("The service already has a upstream entry in the database")
 		}
 
 		// Get the local ip address to add it to the upstream targets
 		localIPAddress := helpers.GetLocalIP()
-		targetAddress := fmt.Sprintf("%s:%s", localIPAddress, vars.ListenPort)
+		targetAddress := fmt.Sprintf("%s:%d", localIPAddress, vars.ListenPort)
 
 		targetInUpstream, err := gateway.IsAddressInUpstreamTargetList(targetAddress, vars.ServiceName)
 		if err != nil {
-			log.WithError(err).Fatal("Unable to check if the address of the container is listed in the upstream of" +
+			logger.WithError(err).Fatal("Unable to check if the address of the container is listed in the upstream of" +
 				" the microservice")
 		}
 		if !targetInUpstream {
@@ -232,59 +262,70 @@ func init() {
 
 			targetAdded, err := gateway.CreateTargetInUpstream(targetAddress, vars.ServiceName)
 			if err != nil {
-				log.WithError(err).Fatal("Unable to add the address of the container to the upstream of the microservice")
+				logger.WithError(err).Fatal("Unable to add the address of the container to the upstream of the microservice")
 			}
 			if !targetAdded {
-				log.Fatal("The target address was not added to the upstream of the service")
+				logger.Fatal("The target address was not added to the upstream of the service")
+			} else {
+				logger.Infof("Added the microservices ip address and listen port to the upstream targets")
 			}
+		} else {
+			logger.Info("The microservices ip address and listen port are already listed as upstream targets")
 		}
 
 		serviceSetUp, err := gateway.IsServiceSetUp(vars.ServiceName)
 		if err != nil {
-			log.WithError(err).Fatal("Unable to check if the microservice already has a service configured on the" +
+			logger.WithError(err).Fatal("Unable to check if the microservice already has a service configured on the" +
 				" gateway")
 		}
 		if !serviceSetUp {
-			log.Warning("No service was previously set up for this microservice. " +
+			logger.Warning("No service was previously set up for this microservice. " +
 				"Creating a new service on the api gateway")
 
 			// Create a new service using the previously created/existing upstream as target of the service
 			serviceCreated, err := gateway.CreateService(vars.ServiceName, vars.ServiceName)
 			if err != nil {
-				log.WithError(err).Fatal("Unable to create a new service for the microservice")
+				logger.WithError(err).Fatal("Unable to create a new service for the microservice")
 			}
 			if !serviceCreated {
-				log.Fatal("The service has not been created due to an unknown error")
+				logger.Fatal("The service has not been created due to an unknown error")
+			} else {
+				logger.Info("Successfully created a new service entry for the microservice")
 			}
+		} else {
+			logger.Info("The microservice already has a service entry set up")
 		}
 
 		routeSetUp, err := gateway.ServiceHasRouteSetUp(vars.ServiceName)
 		if err != nil {
-			log.WithError(err).Fatal("Unable to check if the service of the microservice has any routes configured")
+			logger.WithError(err).Fatal("Unable to check if the service of the microservice has any routes configured")
 		}
 		if !routeSetUp {
 			routeCreated, err := gateway.CreateNewRoute(vars.ServiceName, vars.ServiceRoutePath)
 			if err != nil {
-				log.WithError(err).Fatal("Unable to create a route for the service")
+				logger.WithError(err).Fatal("Unable to create a route for the service")
 			}
 			if !routeCreated {
-				log.Fatal("The route was not created due to an unknown reason")
+				logger.Fatal("The route was not created due to an unknown reason")
+			} else {
+				logger.Info("The route was successfully created for this microservice")
 			}
-
 		} else {
 			routeWithPathExists, err := gateway.ServiceHasRouteWithPathSetUp(vars.ServiceName, vars.ServiceRoutePath)
 			if err != nil {
-				log.WithError(err).Fatal("Unable to check if the service of the microservice has a route configured" +
+				logger.WithError(err).Fatal("Unable to check if the service of the microservice has a route configured" +
 					" matching the path supplied by the environment")
 			}
 			if !routeWithPathExists {
 				routeCreated, err := gateway.CreateNewRoute(vars.ServiceName, vars.ServiceRoutePath)
 				if err != nil {
-					log.WithError(err).Fatal("Unable to create a route for the service")
+					logger.WithError(err).Fatal("Unable to create a route for the service")
 				}
 				if !routeCreated {
-					log.Fatal("The route was not created due to an unknown reason")
+					logger.Fatal("The route was not created due to an unknown reason")
 				}
+			} else {
+				logger.Info("The requested route already exists")
 			}
 		}
 	}
