@@ -84,68 +84,41 @@ func init() {
 		"initStepName": "CONFIGURATION_CHECK",
 	})
 	logger.Debug("Validating the required environment variables for their existence and if the variables are not empty")
-	// Use os.LookupEnv to check if the variables are existent in the environment, but ignore their values since
-	// they have already been read once
-	var apiGatewayHostSet, apiGatewayAdminPortSet, apiGatewayServicePathSet, httpListenPortSet,
-		scopeConfigFilePathSet, postgresHostSet, postgresUserSet, postgresPasswordSet, postgresPortSet bool
-	vars.APIGatewayHost, apiGatewayHostSet = os.LookupEnv("CONFIG_API_GATEWAY_HOST")
-	tmpAdminPort, apiGatewayAdminPortSet := os.LookupEnv("CONFIG_API_GATEWAY_ADMIN_PORT")
-	vars.ServiceRoutePath, apiGatewayServicePathSet = os.LookupEnv("CONFIG_API_GATEWAY_SERVICE_PATH")
-	vars.ListenPort, httpListenPortSet = os.LookupEnv("CONFIG_HTTP_LISTEN_PORT")
-	vars.DatabaseHost, postgresHostSet = os.LookupEnv("CONFIG_POSTGRES_HOST")
-	vars.DatabaseUser, postgresUserSet = os.LookupEnv("CONFIG_POSTGRES_USER")
-	vars.DatabaseUserPassword, postgresPasswordSet = os.LookupEnv("CONFIG_POSTGRES_PASSWORD")
-	vars.DatabasePort, postgresPortSet = os.LookupEnv("CONFIG_POSTGRES_PORT")
-	// Now check the results of the environment variable lookup and check if the string did not only contain whitespaces
-	if !apiGatewayHostSet || strings.TrimSpace(vars.APIGatewayHost) == "" {
-		logger.Fatal("The required environment variable 'CONFIG_API_GATEWAY_HOST' is not populated.")
-	}
-	if !apiGatewayAdminPortSet || strings.TrimSpace(tmpAdminPort) == "" {
-		logger.Fatal("The required environment variable 'CONFIG_API_GATEWAY_ADMIN_PORT' is not populated.")
-	}
-	if !apiGatewayServicePathSet || strings.TrimSpace(vars.ServiceRoutePath) == "" {
-		logger.Fatal("The required environment variable 'CONFIG_API_GATEWAY_SERVICE_PATH' is not populated.")
-	}
-	if !postgresHostSet || strings.TrimSpace(vars.DatabaseHost) == "" {
-		logger.Fatal("The required environment variable 'CONFIG_POSTGRES_HOST' is not populated.")
-	}
-	if !postgresUserSet || strings.TrimSpace(vars.DatabaseUser) == "" {
-		logger.Fatal("The required environment variable 'CONFIG_POSTGRES_USER' is not populated.")
-	}
-	if !postgresPasswordSet || strings.TrimSpace(vars.DatabaseUserPassword) == "" {
-		logger.Fatal("The required environment variable 'CONFIG_POSTGRES_PASSWORD' is not populated.")
-	}
-	// Now check if the optional variables have been set. If not set their respective default values
-	// TODO: Add checks for own optional variables, if needed
-	if !httpListenPortSet {
-		vars.ListenPort = "8000"
-	}
-	if _, err := strconv.Atoi(vars.ListenPort); err != nil {
-		logger.Warning("The http listen port which has been set is not a number. Defaulting to 8000")
-		vars.ListenPort = "8000"
-	}
-	if !postgresPortSet {
-		vars.DatabasePort = "5432"
-	}
-	if _, err := strconv.Atoi(vars.DatabasePort); err != nil {
-		logger.Warning("The postgres port which has been set is not a number. Defaulting to 5432")
-		vars.DatabasePort = "5432"
-	}
-	if !apiGatewayAdminPortSet {
-		vars.APIGatewayPort = 8001
-	}
-	tmpAdminPortInt, err := strconv.Atoi(tmpAdminPort)
-	if err != nil {
-		logger.Warning("The gateway admin api port has not been set to a number. Defaulting to 8001")
-		vars.APIGatewayPort = 8001
-	} else {
-		vars.APIGatewayPort = tmpAdminPortInt
+	// Check the required variables for their values
+	for envName, valuePointer := range RequiredSettings {
+		var err error
+		*valuePointer, err = helpers.ReadEnvironmentVariable(envName)
+		if err != nil {
+			logger.WithError(err).Fatalf("The required environment variable '%s' is not set", envName)
+		}
 	}
 
-	vars.ScopeConfigurationPath, scopeConfigFilePathSet = os.LookupEnv("CONFIG_SCOPE_FILE_PATH")
-	if !scopeConfigFilePathSet {
-		vars.ScopeConfigurationPath = "/microservice/res/scope.json"
+	// Now check the default integer variables if they exist and are convertible
+	for envName, valuePointer := range OptionalIntSettings {
+		stringValue, err := helpers.ReadEnvironmentVariable(envName)
+		if err != nil || strings.TrimSpace(stringValue) == "" {
+			logger.Infof("Using default value '%d' for environment variable '%s'", *valuePointer, envName)
+		} else {
+			intValue, conversionError := strconv.Atoi(stringValue)
+			if conversionError != nil {
+				logger.WithError(conversionError).Warningf("Using default value '%d' for environment variable '%s'",
+					*valuePointer, envName)
+			} else {
+				*valuePointer = intValue
+			}
+		}
 	}
+
+	// Now check for the optional setting strings
+	for envName, valuePointer := range OptionalStringSettings {
+		stringValue, err := helpers.ReadEnvironmentVariable(envName)
+		if err != nil || strings.TrimSpace(stringValue) == "" {
+			logger.Infof("Using default value '%s' for environment variavble '%s'", *valuePointer, envName)
+		} else {
+			*valuePointer = stringValue
+		}
+	}
+
 }
 
 /*
@@ -162,19 +135,19 @@ func init() {
 		"initStepName": "DEPENDENCY_CONNECTION_CHECK",
 	})
 	// Check if the kong admin api is reachable
-	logger.Infof("Checking if the api gateway on the host '%s' is reachable on port '%s'", vars.APIGatewayHost,
+	logger.Infof("Checking if the api gateway on the host '%s' is reachable on port '%d'", vars.APIGatewayHost,
 		vars.APIGatewayPort)
 	gatewayReachable := helpers.PingHost(vars.APIGatewayHost,
 		vars.APIGatewayPort, 10)
 	if !gatewayReachable {
-		logger.Fatalf("The api gateway on the host '%s' is not reachable on port '%s'", vars.APIGatewayHost,
+		logger.Fatalf("The api gateway on the host '%s' is not reachable on port '%d'", vars.APIGatewayHost,
 			vars.APIGatewayPort)
 	} else {
 		logger.Info("The api gateway is reachable via tcp")
 	}
 	// Check if a connection to the postgres database is possible
 	logger.Info("Checking if the postgres database is reachable and the login data is valid")
-	postgresConnectionString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=wisdom sslmode=disable",
+	postgresConnectionString := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=wisdom sslmode=disable",
 		vars.DatabaseHost, vars.DatabasePort, vars.DatabaseUser, vars.DatabaseUserPassword)
 	logger.Debugf("Built the follwoing connection string: '%s'", postgresConnectionString)
 	// Create a possible error object
