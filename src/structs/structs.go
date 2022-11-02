@@ -1,5 +1,6 @@
 package structs
 
+// ScopeInformation contains the information about the scope for this service
 type ScopeInformation struct {
 	JSONSchema       string `json:"$schema"`
 	ScopeName        string `json:"name"`
@@ -7,6 +8,7 @@ type ScopeInformation struct {
 	ScopeValue       string `json:"scopeStringValue"`
 }
 
+// RequestError contains all information about an error which shall be sent back to the client
 type RequestError struct {
 	HttpStatus       int    `json:"httpCode"`
 	HttpError        string `json:"httpError"`

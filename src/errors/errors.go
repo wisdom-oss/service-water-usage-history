@@ -1,5 +1,5 @@
 // Package errors
-// This package contains all errors the service may return in HTTP requests
+// This package contains all errors the service may return to HTTP requests
 // Those errors include unauthenticated calls and forbidden ones
 package errors
 

@@ -10,12 +10,15 @@ import (
 	"time"
 
 	log "github.com/sirupsen/logrus"
+
 	e "microservice/errors"
 )
 
-var logger = log.WithFields(log.Fields{
-	"package": "helpers",
-})
+var logger = log.WithFields(
+	log.Fields{
+		"package": "helpers",
+	},
+)
 
 /*
 PingHost
@@ -80,20 +83,6 @@ func StringArrayContains(a []string, s string) bool {
 }
 
 /*
-StringArrayContainsAnyElement
-
-Check if the string array a contains any element of array b
-*/
-func StringArrayContainsAnyElement(a []string, b []string) bool {
-	for _, item := range b {
-		if StringArrayContains(a, item) {
-			return true
-		}
-	}
-	return false
-}
-
-/*
 SendRequestError
 
 Send a new request error using the http.ResponseWriter supplied to the function
@@ -110,7 +99,7 @@ func SendRequestError(errorCode string, w http.ResponseWriter) {
 }
 
 // ReadEnvironmentVariable checks if the specified environment variable is populated.
-//If not an error is returned with an empty string
+// If not an error is returned with an empty string
 func ReadEnvironmentVariable(envName string) (string, error) {
 	val, isSet := os.LookupEnv(envName)
 	if !isSet {

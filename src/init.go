@@ -15,11 +15,12 @@ import (
 	_ "github.com/lib/pq"
 	log "github.com/sirupsen/logrus"
 	gateway "github.com/wisdom-oss/golang-kong-access"
+
 	"microservice/helpers"
 	"microservice/vars"
 )
 
-// RequiredSettings associates the name of a environment variable with a pointer to the storage location of the value
+// RequiredSettings associates the name of an environment variable with a pointer to the storage location of the value
 var RequiredSettings = map[string]*string{
 	"CONFIG_API_GATEWAY_HOST":         &vars.APIGatewayHost,
 	"CONFIG_POSTGRES_HOST":            &vars.DatabaseHost,
@@ -29,16 +30,16 @@ var RequiredSettings = map[string]*string{
 	// TODO: Add own required settings
 }
 
-//OptionalIntSettings associates the name of an environment variable with a pointer to the storage location of the
-//value. If the value is not found a default value will be loaded
+// OptionalIntSettings associates the name of an environment variable with a pointer to the storage location of the
+// value. If the value is not found a default value will be loaded
 var OptionalIntSettings = map[string]*int{
 	"CONFIG_HTTP_LISTEN_PORT":       &vars.ListenPort,
 	"CONFIG_POSTGRES_PORT":          &vars.DatabasePort,
 	"CONFIG_API_GATEWAY_ADMIN_PORT": &vars.APIGatewayPort,
 }
 
-//OptionalStringSettings associates the name of an environment variable with a pointer to the storage location of the
-//value. If the value is not found a default value will be loaded
+// OptionalStringSettings associates the name of an environment variable with a pointer to the storage location of the
+// value. If the value is not found a default value will be loaded
 var OptionalStringSettings = map[string]*string{
 	"CONFIG_SCOPE_FILE_PATH": &vars.ScopeConfigurationPath,
 }
@@ -81,12 +82,14 @@ func init() {
 	// Set the level for the logging library
 	log.SetLevel(logrusLoggingLevel)
 	// Set the formatter for the logging library
-	log.SetFormatter(&log.TextFormatter{
-		// Display the full time stamp in the logs
-		FullTimestamp: true,
-		// Show the levels name fully, even though this may result in shifts between the log lines
-		DisableLevelTruncation: true,
-	})
+	log.SetFormatter(
+		&log.TextFormatter{
+			// Display the full time stamp in the logs
+			FullTimestamp: true,
+			// Show the levels name fully, even though this may result in shifts between the log lines
+			DisableLevelTruncation: true,
+		},
+	)
 }
 
 /*
@@ -103,10 +106,12 @@ Furthermore, this step will use sensitive defaults on the following environment 
 TODO: Add own required and optional variables to this function, if needed
 */
 func init() {
-	logger := log.WithFields(log.Fields{
-		"initStep":     3,
-		"initStepName": "CONFIGURATION_CHECK",
-	})
+	logger := log.WithFields(
+		log.Fields{
+			"initStep":     3,
+			"initStepName": "CONFIGURATION_CHECK",
+		},
+	)
 	logger.Debug("Validating the required environment variables for their existence and if the variables are not empty")
 	// Check the required variables for their values
 	for envName, valuePointer := range RequiredSettings {
@@ -125,8 +130,10 @@ func init() {
 		} else {
 			intValue, conversionError := strconv.Atoi(stringValue)
 			if conversionError != nil {
-				logger.WithError(conversionError).Warningf("Using default value '%d' for environment variable '%s'",
-					*valuePointer, envName)
+				logger.WithError(conversionError).Warningf(
+					"Using default value '%d' for environment variable '%s'",
+					*valuePointer, envName,
+				)
 			} else {
 				*valuePointer = intValue
 			}
@@ -154,25 +161,35 @@ TODO: Add checks for new dependencies
 */
 func init() {
 	// Create a logger for this step
-	logger := log.WithFields(log.Fields{
-		"initStep":     4,
-		"initStepName": "DEPENDENCY_CONNECTION_CHECK",
-	})
+	logger := log.WithFields(
+		log.Fields{
+			"initStep":     4,
+			"initStepName": "DEPENDENCY_CONNECTION_CHECK",
+		},
+	)
 	// Check if the kong admin api is reachable
-	logger.Infof("Checking if the api gateway on the host '%s' is reachable on port '%d'", vars.APIGatewayHost,
-		vars.APIGatewayPort)
-	gatewayReachable := helpers.PingHost(vars.APIGatewayHost,
-		vars.APIGatewayPort, 10)
+	logger.Infof(
+		"Checking if the api gateway on the host '%s' is reachable on port '%d'", vars.APIGatewayHost,
+		vars.APIGatewayPort,
+	)
+	gatewayReachable := helpers.PingHost(
+		vars.APIGatewayHost,
+		vars.APIGatewayPort, 10,
+	)
 	if !gatewayReachable {
-		logger.Fatalf("The api gateway on the host '%s' is not reachable on port '%d'", vars.APIGatewayHost,
-			vars.APIGatewayPort)
+		logger.Fatalf(
+			"The api gateway on the host '%s' is not reachable on port '%d'", vars.APIGatewayHost,
+			vars.APIGatewayPort,
+		)
 	} else {
 		logger.Info("The api gateway is reachable via tcp")
 	}
 	// Check if a connection to the postgres database is possible
 	logger.Info("Checking if the postgres database is reachable and the login data is valid")
-	postgresConnectionString := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=wisdom sslmode=disable",
-		vars.DatabaseHost, vars.DatabasePort, vars.DatabaseUser, vars.DatabaseUserPassword)
+	postgresConnectionString := fmt.Sprintf(
+		"host=%s port=%d user=%s password=%s dbname=wisdom sslmode=disable",
+		vars.DatabaseHost, vars.DatabasePort, vars.DatabaseUser, vars.DatabaseUserPassword,
+	)
 	logger.Debugf("Built the follwoing connection string: '%s'", postgresConnectionString)
 	// Create a possible error object
 	var connectionError error
@@ -196,10 +213,12 @@ This initialization step will load the supplied scope-example.json file to get t
 requests for the correct scope
 */
 func init() {
-	logger := log.WithFields(log.Fields{
-		"initStep":     5,
-		"initStepName": "OAUTH2_SCOPE_CONFIGURATION",
-	})
+	logger := log.WithFields(
+		log.Fields{
+			"initStep":     5,
+			"initStepName": "OAUTH2_SCOPE_CONFIGURATION",
+		},
+	)
 	logger.Infof("Reading the scope configuration file from '%s'", vars.ScopeConfigurationPath)
 	fileContents, err := ioutil.ReadFile(vars.ScopeConfigurationPath)
 	if err != nil {
@@ -221,10 +240,12 @@ This initialization step will use the admin api of the api gateway to add itself
 instances. If no upstream is set up, one will be created automatically
 */
 func init() {
-	logger := log.WithFields(log.Fields{
-		"initStep":     6,
-		"initStepName": "GATEWAY_SET_UP",
-	})
+	logger := log.WithFields(
+		log.Fields{
+			"initStep":     6,
+			"initStepName": "GATEWAY_SET_UP",
+		},
+	)
 	if !vars.ExecuteHealthcheck {
 		setupErr := gateway.SetUpGatewayConnection(vars.APIGatewayHost, vars.APIGatewayPort, false)
 		if setupErr != nil {
@@ -254,8 +275,10 @@ func init() {
 
 		targetInUpstream, err := gateway.IsAddressInUpstreamTargetList(targetAddress, vars.ServiceName)
 		if err != nil {
-			logger.WithError(err).Fatal("Unable to check if the address of the container is listed in the upstream of" +
-				" the microservice")
+			logger.WithError(err).Fatal(
+				"Unable to check if the address of the container is listed in the upstream of" +
+					" the microservice",
+			)
 		}
 		if !targetInUpstream {
 			// Build the target address
@@ -275,12 +298,16 @@ func init() {
 
 		serviceSetUp, err := gateway.IsServiceSetUp(vars.ServiceName)
 		if err != nil {
-			logger.WithError(err).Fatal("Unable to check if the microservice already has a service configured on the" +
-				" gateway")
+			logger.WithError(err).Fatal(
+				"Unable to check if the microservice already has a service configured on the" +
+					" gateway",
+			)
 		}
 		if !serviceSetUp {
-			logger.Warning("No service was previously set up for this microservice. " +
-				"Creating a new service on the api gateway")
+			logger.Warning(
+				"No service was previously set up for this microservice. " +
+					"Creating a new service on the api gateway",
+			)
 
 			// Create a new service using the previously created/existing upstream as target of the service
 			serviceCreated, err := gateway.CreateService(vars.ServiceName, vars.ServiceName)
@@ -313,8 +340,10 @@ func init() {
 		} else {
 			routeWithPathExists, err := gateway.ServiceHasRouteWithPathSetUp(vars.ServiceName, vars.ServiceRoutePath)
 			if err != nil {
-				logger.WithError(err).Fatal("Unable to check if the service of the microservice has a route configured" +
-					" matching the path supplied by the environment")
+				logger.WithError(err).Fatal(
+					"Unable to check if the service of the microservice has a route configured" +
+						" matching the path supplied by the environment",
+				)
 			}
 			if !routeWithPathExists {
 				routeCreated, err := gateway.CreateNewRoute(vars.ServiceName, vars.ServiceRoutePath)
