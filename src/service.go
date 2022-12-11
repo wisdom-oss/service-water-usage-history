@@ -39,9 +39,9 @@ func main() {
 	// Configure the HTTP server
 	server := &http.Server{
 		Addr:         fmt.Sprintf("0.0.0.0:%d", vars.ListenPort),
-		WriteTimeout: time.Second * 15,
-		ReadTimeout:  time.Second * 15,
-		IdleTimeout:  time.Second * 60,
+		WriteTimeout: time.Second * 600,
+		ReadTimeout:  time.Second * 600,
+		IdleTimeout:  time.Second * 600,
 		Handler:      router,
 	}
 
