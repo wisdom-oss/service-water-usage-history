@@ -10,6 +10,7 @@ import (
 
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
+
 	"microservice/handlers"
 	"microservice/vars"
 )
@@ -67,6 +68,11 @@ func main() {
 		err := server.Shutdown(context)
 		if err != nil {
 			log.WithError(err).Fatal("An error occurred while stopping the http server")
+		}
+		log.Info("Closing the database connection")
+		dbCloseErr := vars.PostgresConnection.Close()
+		if dbCloseErr != nil {
+			log.WithError(err).Fatal("An error occurred while closing the connection to the database")
 		}
 	}()
 	log.Info("Shutting down the microservice...")
