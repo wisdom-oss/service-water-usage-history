@@ -32,10 +32,9 @@ func main() {
 
 	// Set up the routing of the different functions
 	router := mux.NewRouter()
+	router.Use(handlers.AuthorizationCheck)
 	router.HandleFunc("/ping", handlers.PingHandler)
-	router.Handle("/", handlers.AuthorizationCheck(
-		http.HandlerFunc(handlers.BasicHandler),
-	))
+	router.HandleFunc("/", handlers.BasicHandler)
 
 	// Configure the HTTP server
 	server := &http.Server{
