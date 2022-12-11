@@ -1,4 +1,6 @@
 # WISdoM OSS - Golang Microservice Template
+![GitHub go.mod Go version (subdirectory of monorepo)](https://img.shields.io/github/go-mod/go-version/wisdom-oss/microservice-template?filename=src%2Fgo.mod&style=for-the-badge)
+
 
 This repository contains the source code for a new microservice. You may use this source code
 for creating a new microservice which automatically registers at the api gateway and sets up
