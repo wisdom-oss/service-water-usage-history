@@ -1,4 +1,6 @@
-package handlers
+// Package routes
+// This package contains all route handlers for the microservice
+package routes
 
 import (
 	"net/http"
@@ -6,8 +8,8 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	e "microservice/errors"
 	"microservice/helpers"
+	e "microservice/request/error"
 	"microservice/vars"
 )
 

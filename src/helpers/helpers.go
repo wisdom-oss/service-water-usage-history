@@ -11,7 +11,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	e "microservice/errors"
+	e "microservice/request/error"
 )
 
 var logger = log.WithFields(

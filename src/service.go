@@ -11,7 +11,7 @@ import (
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 
-	"microservice/handlers"
+	"microservice/request/routes"
 	"microservice/vars"
 )
 
@@ -33,9 +33,9 @@ func main() {
 
 	// Set up the routing of the different functions
 	router := mux.NewRouter()
-	router.Use(handlers.AuthorizationCheck)
-	router.HandleFunc("/ping", handlers.PingHandler)
-	router.HandleFunc("/", handlers.BasicHandler)
+	router.Use(routes.AuthorizationCheck)
+	router.HandleFunc("/ping", routes.PingHandler)
+	router.HandleFunc("/", routes.BasicHandler)
 
 	// Configure the HTTP server
 	server := &http.Server{
