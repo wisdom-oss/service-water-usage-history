@@ -3,50 +3,9 @@
 package routes
 
 import (
-	"net/http"
-	"strings"
-
 	log "github.com/sirupsen/logrus"
-
-	"microservice/helpers"
-	e "microservice/request/error"
-	"microservice/vars"
+	"net/http"
 )
-
-func AuthorizationCheck(nextHandler http.Handler) http.Handler {
-	return http.HandlerFunc(
-		func(responseWriter http.ResponseWriter, request *http.Request) {
-			logger := log.WithFields(
-				log.Fields{
-					"middleware": true,
-					"title":      "AuthorizationCheck",
-				},
-			)
-			logger.Debug("Checking the incoming request for authorization information set by the gateway")
-			if request.URL.Path == "/ping" {
-				nextHandler.ServeHTTP(responseWriter, request)
-				return
-			}
-			// Get the scopes the requesting user has
-			scopes := request.Header.Get("X-Authenticated-Scope")
-			// Check if the string is empty
-			if strings.TrimSpace(scopes) == "" {
-				logger.Warning("Unauthorized request detected. The required header had no content or was not set")
-				helpers.SendRequestError(e.UnauthorizedRequest, responseWriter)
-				return
-			}
-
-			scopeList := strings.Split(scopes, ",")
-			if !helpers.StringArrayContains(scopeList, vars.ScopeConfiguration.ScopeValue) {
-				logger.Error("Request rejected. The user is missing the scope needed for accessing this service")
-				helpers.SendRequestError(e.MissingScope, responseWriter)
-				return
-			}
-			// Call the next handler which will continue handling the request
-			nextHandler.ServeHTTP(responseWriter, request)
-		},
-	)
-}
 
 /*
 PingHandler

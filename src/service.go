@@ -3,6 +3,7 @@ package main
 import (
 	context2 "context"
 	"fmt"
+	"microservice/request/middleware"
 	"net/http"
 	"os"
 	"os/signal"
@@ -33,7 +34,7 @@ func main() {
 
 	// Set up the routing of the different functions
 	router := mux.NewRouter()
-	router.Use(routes.AuthorizationCheck)
+	router.Use(middleware.AuthorizationCheck)
 	router.HandleFunc("/ping", routes.PingHandler)
 	router.HandleFunc("/", routes.BasicHandler)
 
