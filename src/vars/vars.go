@@ -1,4 +1,5 @@
-// Package vars contains all globally used variables and their default values
+// Package vars contains all globally used variables and their default values. Furthermore,
+// the package also contains all internal errors since they are just variables to golang
 package vars
 
 import (
@@ -54,5 +55,5 @@ var PostgresConnection *sql.DB
 var ScopeConfiguration *structs.ScopeInformation
 
 // ExecuteHealthcheck is an indicator for the microservice if the service shall execute a healthcheck.
-//You can trigger a health check by starting the executable with -healthcheck
+// You can trigger a health check by starting the executable with -healthcheck
 var ExecuteHealthcheck bool
