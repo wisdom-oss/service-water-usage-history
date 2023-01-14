@@ -8,6 +8,7 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+
 	"os"
 	"strconv"
 	"strings"
@@ -16,7 +17,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	gateway "github.com/wisdom-oss/golang-kong-access"
 
-	"microservice/helpers"
+	"microservice/utils"
 	"microservice/vars"
 )
 
@@ -116,7 +117,7 @@ func init() {
 	// Check the required variables for their values
 	for envName, valuePointer := range RequiredSettings {
 		var err error
-		*valuePointer, err = helpers.ReadEnvironmentVariable(envName)
+		*valuePointer, err = utils.ReadEnvironmentVariable(envName)
 		if err != nil {
 			logger.WithError(err).Fatalf("The required environment variable '%s' is not set", envName)
 		}
@@ -124,7 +125,7 @@ func init() {
 
 	// Now check the default integer variables if they exist and are convertible
 	for envName, valuePointer := range OptionalIntSettings {
-		stringValue, err := helpers.ReadEnvironmentVariable(envName)
+		stringValue, err := utils.ReadEnvironmentVariable(envName)
 		if err != nil || strings.TrimSpace(stringValue) == "" {
 			logger.Infof("Using default value '%d' for environment variable '%s'", *valuePointer, envName)
 		} else {
@@ -142,7 +143,7 @@ func init() {
 
 	// Now check for the optional setting strings
 	for envName, valuePointer := range OptionalStringSettings {
-		stringValue, err := helpers.ReadEnvironmentVariable(envName)
+		stringValue, err := utils.ReadEnvironmentVariable(envName)
 		if err != nil || strings.TrimSpace(stringValue) == "" {
 			logger.Infof("Using default value '%s' for environment variavble '%s'", *valuePointer, envName)
 		} else {
@@ -172,7 +173,7 @@ func init() {
 		"Checking if the api gateway on the host '%s' is reachable on port '%d'", vars.APIGatewayHost,
 		vars.APIGatewayPort,
 	)
-	gatewayReachable := helpers.PingHost(
+	gatewayReachable := utils.PingHost(
 		vars.APIGatewayHost,
 		vars.APIGatewayPort, 10,
 	)
@@ -270,7 +271,7 @@ func init() {
 		}
 
 		// Get the local ip address to add it to the upstream targets
-		localIPAddress := helpers.GetLocalIP()
+		localIPAddress, _ := utils.LocalIPv4Address()
 		targetAddress := fmt.Sprintf("%s:%d", localIPAddress, vars.ListenPort)
 
 		targetInUpstream, err := gateway.IsAddressInUpstreamTargetList(targetAddress, vars.ServiceName)
