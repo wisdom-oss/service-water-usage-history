@@ -1,60 +1,31 @@
-// Package error
-// This package contains all errors the service may return to HTTP requests
-// Those errors include unauthenticated calls and forbidden ones
-package error
+// Package requestErrors contains all request errors which are directly handled by the handlers and are detected by
+// the handlers. The request errors are identified by a constant value which also represents the error code
+package requestErrors
 
 import (
-	"fmt"
 	"net/http"
-
-	"microservice/structs"
-	"microservice/vars"
 )
 
-const UnauthorizedRequest = "UNAUTHORIZED_REQUEST"
-const MissingScope = "SCOPE_MISSING"
-const UnsupportedHTTPMethod = "UNSUPPORTED_METHOD"
-const DatabaseQueryError = "DATABASE_QUERY_ERROR"
-const UnprocessableEntity = "UNPROCESSABLE_ENTITY"
-const UniqueConstraintViolation = "UNIQUE_CONSTRAINT_VIOLATION"
+const MissingAuthorizationInformation = "MISSING_AUTHORIZATION_INFORMATION"
+const InsufficientScope = "INSUFFICIENT_SCOPE"
+const InternalError = "INTERNAL_ERROR"
 
-var errorTitle = map[string]string{
-	UnauthorizedRequest:       "Unauthorized Request",
-	MissingScope:              "Forbidden",
-	UnsupportedHTTPMethod:     "Unsupported HTTP Method",
-	DatabaseQueryError:        "Database Query Error",
-	UnprocessableEntity:       "Unprocessable Entity",
-	UniqueConstraintViolation: "Unique Constraint Violation",
+var titles = map[string]string{
+	MissingAuthorizationInformation: "Unauthorized",
+	InsufficientScope:               "Insufficient Scope",
+	InternalError:                   "Internal Error",
 }
 
-var errorDescription = map[string]string{
-	UnauthorizedRequest: "The resource you tried to access requires authorization. Please check your request",
-	MissingScope: "Yu tried to access a resource which is protected by a scope. " +
-		"Your authorization information did not contain the required scope.",
-	UnsupportedHTTPMethod: "The used HTTP method is not supported by this microservice. " +
-		"Please check the documentation for further information",
-	DatabaseQueryError: "The microservice was unable to successfully execute the database query. " +
-		"Please check the logs for more information",
-	UnprocessableEntity: "The JSON object you sent to the service is not processable. Please check your request",
-	UniqueConstraintViolation: "The object you are trying to create already exists in the database. " +
-		"Please check your request and the documentation",
+var descriptions = map[string]string{
+	MissingAuthorizationInformation: "The accessed resource requires authorization, " +
+		"however the request did not contain valid authorization information. Please check the request",
+	InsufficientScope: "The authorization was successful, " +
+		"but the resource is protected by a scope which was not included in the authorization information",
+	InternalError: "During the handling of the request an unexpected error occurred",
 }
 
-var httpStatus = map[string]int{
-	UnauthorizedRequest:       http.StatusUnauthorized,
-	MissingScope:              http.StatusForbidden,
-	UnsupportedHTTPMethod:     http.StatusMethodNotAllowed,
-	DatabaseQueryError:        http.StatusInternalServerError,
-	UnprocessableEntity:       http.StatusUnprocessableEntity,
-	UniqueConstraintViolation: http.StatusConflict,
-}
-
-func NewRequestError(errorCode string) structs.RequestError {
-	return structs.RequestError{
-		HttpStatus:       httpStatus[errorCode],
-		HttpError:        http.StatusText(httpStatus[errorCode]),
-		ErrorCode:        fmt.Sprintf("%s.%s", vars.ServiceName, errorCode),
-		ErrorTitle:       errorTitle[errorCode],
-		ErrorDescription: errorDescription[errorCode],
-	}
+var httpCodes = map[string]int{
+	MissingAuthorizationInformation: http.StatusUnauthorized,
+	InsufficientScope:               http.StatusForbidden,
+	InternalError:                   http.StatusInternalServerError,
 }
