@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"github.com/go-chi/chi/v5/middleware"
 	log "github.com/sirupsen/logrus"
 	e "microservice/request/error"
 	"microservice/utils"
@@ -19,7 +20,7 @@ func AuthorizationCheck(nextHandler http.Handler) http.Handler {
 				},
 			)
 			logger.Debug("Checking the incoming request for authorization information set by the gateway")
-			if request.URL.Path == "/ping" {
+			if request.URL.Path == "/healthcheck" {
 				nextHandler.ServeHTTP(responseWriter, request)
 				return
 			}
@@ -41,6 +42,16 @@ func AuthorizationCheck(nextHandler http.Handler) http.Handler {
 				return
 			}
 			// Call the next handler which will continue handling the request
+			nextHandler.ServeHTTP(responseWriter, request)
+		},
+	)
+}
+
+func AdditionalResponseHeaders(nextHandler http.Handler) http.Handler {
+	return http.HandlerFunc(
+		func(responseWriter http.ResponseWriter, request *http.Request) {
+			requestID := middleware.GetReqID(request.Context())
+			responseWriter.Header().Set("X-Request-ID", requestID)
 			nextHandler.ServeHTTP(responseWriter, request)
 		},
 	)
