@@ -8,5 +8,6 @@ RUN go build -o /tmp/build/app
 FROM alpine:latest
 COPY --from=build-service /tmp/build/app /service
 COPY res /res
+RUN apk --no-cache add curl
 ENTRYPOINT ["/service"]
-HEALTHCHECK --interval=10s CMD /service -healthcheck
+HEALTHCHECK --interval=5s CMD curl -s -f http://localhost:8000/healthcheck
