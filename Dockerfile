@@ -1,11 +1,6 @@
 FROM golang:alpine AS build-service
-RUN apk add --no-cache git
-COPY . /tmp
-WORKDIR /tmp
-RUN git submodule init
-RUN git submodule update
+COPY src /tmp/src
 WORKDIR /tmp/src
-RUN ls -lha /tmp/src/request/middleware
 RUN mkdir -p /tmp/build
 RUN go mod download
 RUN go build -o /tmp/build/app
