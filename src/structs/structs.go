@@ -8,8 +8,8 @@ type ScopeInformation struct {
 	ScopeValue       string `json:"scopeStringValue"`
 }
 
-// RequestError contains all information about an error which shall be sent back to the client
-type RequestError struct {
+// ErrorResponse contains all information about an error which shall be sent back to the client
+type ErrorResponse struct {
 	HttpStatus       int    `json:"httpCode"`
 	HttpError        string `json:"httpError"`
 	ErrorCode        string `json:"error"`
