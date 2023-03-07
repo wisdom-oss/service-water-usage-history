@@ -4,7 +4,11 @@ package routes
 
 import (
 	log "github.com/sirupsen/logrus"
+	"io"
+	requestErrors "microservice/request/error"
+	"microservice/vars/globals"
 	"net/http"
+	"os"
 )
 
 /*
@@ -17,4 +21,24 @@ func BasicHandler(responseWriter http.ResponseWriter, request *http.Request) {
 	if err != nil {
 		log.WithError(err).Error("Unable to send response to the client")
 	}
+}
+
+func GatewayConfig(responseWriter http.ResponseWriter, request *http.Request) {
+	configFile, err := os.Open(globals.Environment["GATEWAY_CONFIG_LOCATION"])
+	if err != nil {
+		e, _ := requestErrors.WrapInternalError(err)
+		requestErrors.SendError(e, responseWriter)
+		return
+	}
+
+	configFileContents, readErr := io.ReadAll(configFile)
+	if readErr != nil {
+		e, _ := requestErrors.WrapInternalError(err)
+		requestErrors.SendError(e, responseWriter)
+		return
+	}
+
+	responseWriter.Header().Set("Content-Type", "text/json")
+	responseWriter.WriteHeader(200)
+	responseWriter.Write(configFileContents)
 }
