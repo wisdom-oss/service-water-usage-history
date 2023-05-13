@@ -27,11 +27,9 @@ func main() {
 	router.Use(middleware.RealIP)
 	router.Use(httplog.Handler(globals.HttpLogger))
 	router.Use(middleware.Heartbeat("/healthcheck"))
-	router.Use(wisdomMiddleware.Authorization([]string{"/healthcheck", "/_gatewayConfig"}, globals.ScopeConfiguration.ScopeValue))
+	router.Use(wisdomMiddleware.Authorization([]string{"/healthcheck"}, globals.ScopeConfiguration.ScopeValue))
 	//router.Use()
 	router.HandleFunc("/", routes.BasicHandler)
-	router.HandleFunc("/_gatewayConfig", routes.GatewayConfig)
-
 	// Configure the HTTP server
 	server := &http.Server{
 		Addr:         fmt.Sprintf("0.0.0.0:%s", globals.Environment["LISTEN_PORT"]),
