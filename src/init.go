@@ -102,8 +102,17 @@ func init() {
 		l.Debug().Str("env", key).Msg("reading required environment variable")
 		value, isSet := os.LookupEnv(key)
 		if !isSet {
-			l.Fatal().Err(vars.ErrEnvironmentVariableNotFound).Msgf(
-				"the environment variable '%s' is required but not set")
+			// since the key was not found look for a docker secret containing the value
+			fileKey := key + "_FILE"
+			value, isSet := os.LookupEnv(fileKey)
+			if !isSet {
+				l.Fatal().Err(vars.ErrEnvironmentVariableNotFound).Msgf(
+					"the environment variable '%s' is required but not set", key)
+			} else {
+				l.Debug().Str("env", key).Msg("found value for environment variable in docker secret")
+				value = strings.TrimSpace(value)
+				globals.Environment[key] = value
+			}
 		} else {
 			l.Debug().Str("env", key).Msg("found value for environment variable")
 			globals.Environment[key] = value
