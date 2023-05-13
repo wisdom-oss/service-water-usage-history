@@ -12,8 +12,6 @@ import (
 	"os"
 	"os/signal"
 	"time"
-
-	log "github.com/sirupsen/logrus"
 )
 
 /*
@@ -42,12 +40,13 @@ func main() {
 	// Start the server and log errors that happen while running it
 	go func() {
 		if err := server.ListenAndServe(); err != nil {
-			log.WithError(err).Fatal("An error occurred while starting the http server")
+			globals.HttpLogger.Fatal().Err(err).Msg("An error occurred while starting the http server")
 		}
 	}()
 
-	// Set up the signal handling to allow the server to shut down gracefully
+	globals.HttpLogger.Info().Msg("server ready to accept connections")
 
+	// Set up the signal handling to allow the server to shut down gracefully
 	cancelSignal := make(chan os.Signal, 1)
 	signal.Notify(cancelSignal, os.Interrupt)
 
