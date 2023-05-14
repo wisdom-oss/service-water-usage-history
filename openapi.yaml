@@ -1,0 +1,75 @@
+openapi: 3.0.3
+info:
+  title: Water Usage History Microservice
+  description: |
+    [![GitHub Repo](https://img.shields.io/badge/GitHub%20Repository-service--water--usage--history-333?style=for-the-badge&logo=github)](https://github.com/wisdom-oss/service-water-usage-history)
+    
+    This microservice allows authenticated API users to retrieve the recorded
+    water usages for a known consumer. The consumers are identified by their
+    unique consumer ID (UUID).
+  version: 2.0.0
+
+components:
+  schemas:
+    WaterUsageRecord:
+      title: Water Usage Record
+      type: object
+      properties:
+        recordID:
+          type: string
+          format: uuid
+          description: |
+            The unique ID of the record which may be used to
+            change the record
+          required: true
+        year:
+          type: integer
+          format: int32
+          description: The year for which the usage is recorded
+          required: true
+        amount:
+          type: number
+          format: double
+          description: The amount of used water in cubic meters
+          required: true
+          minimum: 0
+        recordedAt:
+          type: integer
+          format: int64
+          required: true
+          minimum: 0
+          description: |
+            The UNIX timestamp of the recording for this entry
+servers:
+  - url: '/api/usage-history'
+paths:
+    /{consumerId}:
+      get:
+        parameters:
+          - in: path
+            required: true
+            name: consumerId
+            schema:
+              type: string
+              format: uuid
+        summary: Retrieve the water usage history for a consumer
+        description: |
+          This endpoint allows users to get a history of the recorded water
+          usages for a known consumer
+        responses:
+          200:
+            description: Water Usage History contains entries
+            content:
+              application/json:
+                schema:
+                  type: array
+                  description: |
+                    The array of water usage entries for the consumer
+                  items:
+                    $ref: '#/components/schemas/WaterUsageRecord'
+          204:
+            description: No Water Usage Records found for this consumer
+          400:
+            description: The consumer ID is not a valid UUID
+          404:
+            description: The consumer ID is not known
