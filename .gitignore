@@ -45,3 +45,4 @@ fabric.properties
 *.out
 go.work
 .idea
+/.env
