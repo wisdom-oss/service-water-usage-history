@@ -10,8 +10,7 @@ import (
 
 // ServiceName sets the string by which the service is identified in the
 // API gateway and in the logging
-// TODO: Change this name to a appropriate one after inserting this template
-var ServiceName = "this-is-a-template"
+var ServiceName = "water-usages"
 
 // HealthCheckPath is the path under which the health check endpoint is
 var HealthCheckPath = "/health"
