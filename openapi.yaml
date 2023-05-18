@@ -1,31 +1,81 @@
 openapi: 3.0.3
 info:
-  title: Water Usage History Microservice
+  title: Water Usage Management Microservice
   description: |
     [![GitHub Repo](https://img.shields.io/badge/GitHub%20Repository-service--water--usage--history-333?style=for-the-badge&logo=github)](https://github.com/wisdom-oss/service-water-usage-history)
     
     This microservice allows authenticated API users to retrieve the recorded
-    water usages for a known consumer. The consumers are identified by their
-    unique consumer ID (UUID).
+    water usages for a known consumer.
+    
+    Furthermore, it allows authenticated API users to store new water usage
+    records in the database and make time based queries for the water usage
+    between two dates.
   version: 2.0.0
+
+tags:
+    - name: Usage Record Endpoints
+      description: |
+        These Endpoints are related to the water usage records of the water usage history
+    - name: Consumer Related Endpoints
+      description: |
+          These endpoints are related to the consumers of the water usage history
+          microservice.
+    - name: Usage Type Related Endpoints
+      description: |
+          These endpoints are related to the usage types of the water usage history
+          microservice.
+    - name: Unrecommended Endpoints
+      description: |
+            These endpoints are not recommended for use in production environments
+            due to their potentially large response bodies or long response times.
 
 components:
   schemas:
+    IncomingWaterUsageRecord:
+      title: New Water Usage Record
+      type: object
+      properties:
+        date:
+          type: integer
+          format: int64
+          minimum: 0
+          description: The date for which the usage was recorded as UNIX timestamp
+          required: true
+        usageType:
+          type: string
+          description: |
+            The usage type for this record.
+            
+            **Note:** This field is optional when supplying a consumer which has a default usage type
+          required: false
+        consumer:
+          type: string
+          format: uuid
+          description: |
+            The consumer for which the usage was recorded.
+          required: false
+        amount:
+          type: number
+          format: double
+          description: The amount of used water in cubic meters
+          required: true
+          minimum: 0
     WaterUsageRecord:
       title: Water Usage Record
       type: object
       properties:
         recordID:
-          type: string
-          format: uuid
+          type: integer
+          format: int64
           description: |
             The unique ID of the record which may be used to
-            change the record
+            delete the record
           required: true
-        year:
+        date:
           type: integer
-          format: int32
-          description: The year for which the usage is recorded
+          format: int64
+          minimum: 0
+          description: The date for which the usage was recorded as UNIX timestamp
           required: true
         amount:
           type: number
@@ -33,6 +83,16 @@ components:
           description: The amount of used water in cubic meters
           required: true
           minimum: 0
+        usageType:
+          type: string
+          description: The usage type for this record
+          required: false
+        consumer:
+          type: string
+          format: uuid
+          description: |
+            The consumer for which the usage was recorded.
+          required: false
         recordedAt:
           type: integer
           format: int64
@@ -41,10 +101,63 @@ components:
           description: |
             The UNIX timestamp of the recording for this entry
 servers:
-  - url: '/api/usage-history'
+  - url: '/api/usages'
 paths:
-    /{consumerId}:
+    /:
       get:
+        tags:
+          - Unrecommended Endpoints
+          - Usage Record Endpoints
+        summary: Get all stored water usage records
+        description: |
+          This endpoint allows users to get all stored water usage records from the database.
+          
+          > **Important Note:** Using this method may take a long time to complete and will result in a 
+          >  very large response body. It is recommended to use other methods to retrieve the records.
+        responses:
+          200:
+            description: Water Usage History contains entries
+            content:
+              application/json:
+                schema:
+                  type: array
+                  description: |
+                    The array of water usage entries for the consumer
+                  items:
+                    $ref: '#/components/schemas/WaterUsageRecord'
+
+      post:
+        tags:
+          - Usage Record Endpoints
+        summary: Create a new water usage record
+        description: |
+          This endpoint allows users to create a new water usage record
+        requestBody:
+          description: |
+            The new water usage record to be created
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncomingWaterUsageRecord'
+        responses:
+          201:
+            description: The water usage record was created successfully
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/WaterUsageRecord'
+          400:
+            description: The supplied water usage record is invalid
+          409:
+            description: The supplied water usage record conflicts with an existing record
+
+
+    /by-consumer/{consumerId}:
+      get:
+        tags:
+          - Consumer Related Endpoints
+          - Usage Record Endpoints
         parameters:
           - in: path
             required: true
@@ -73,3 +186,38 @@ paths:
             description: The consumer ID is not a valid UUID
           404:
             description: The consumer ID is not known
+
+    /by-usageType/{usageType}:
+      get:
+        tags:
+          - Usage Type Related Endpoints
+          - Usage Record Endpoints
+        parameters:
+          - in: path
+            required: true
+            name: usageType
+            schema:
+              type: string
+        summary: Retrieve the water usage history for a usage type
+        description: |
+          This endpoint allows users to get a history of the recorded water
+          usages for a known usage type
+        responses:
+          200:
+            description: Water Usage History contains entries
+            content:
+              application/json:
+                schema:
+                  type: array
+                  description: |
+                    The array of water usage entries for the consumer
+                  items:
+                    $ref: '#/components/schemas/WaterUsageRecord'
+          204:
+            description: No Water Usage Records found for this consumer
+          400:
+            description: The consumer ID is not a valid UUID
+          404:
+            description: The consumer ID is not known
+
+
