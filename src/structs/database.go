@@ -20,7 +20,7 @@ type DbWaterUsageRecord struct {
 
 	// Consumer contains the UUID of the consumer responsible for the usage. This value
 	// may be null if no consumer was set
-	Consumer *pgtype.UUID `db:"consumer"`
+	Consumer pgtype.UUID `db:"consumer"`
 
 	// UsageType contains a UUID pointing to the usage type for this record
 	UsageType pgtype.UUID `db:"usage_type"`
