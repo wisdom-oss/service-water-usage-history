@@ -143,12 +143,29 @@ WHERE
 AND
     date > $2;
 
+-- Get a single usage record by it's internal id
+-- name: get-single-record
+SELECT
+    id,
+    municipality,
+    date,
+    consumer,
+    usage_type,
+    created_at,
+    amount
+FROM
+    water_usage.usages
+WHERE
+    id = $1;
+
 -- Add a new usage record
 -- name: add-usage-record
 INSERT INTO
     water_usage.usages(municipality, date, consumer, usage_type, amount)
 VALUES
-    ($1, $2, $3, $4, $5);
+    ($1, $2, $3, $4, $5)
+RETURNING
+    id;
 
 -- Delete a usage record
 -- name: delete-usage-record
