@@ -1,4 +1,4 @@
-package structs
+package db
 
 import (
 	"github.com/jackc/pgtype"

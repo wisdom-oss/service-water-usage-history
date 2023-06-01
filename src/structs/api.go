@@ -1,6 +1,9 @@
 package structs
 
-import "github.com/paulmach/go.geojson"
+import (
+	"github.com/paulmach/go.geojson"
+	"net/http"
+)
 
 // IncomingUsageRecord reflects the expected input when creating a new water
 // usage record using this microservice
@@ -16,6 +19,10 @@ type IncomingUsageRecord struct {
 	// Consumer contains the uuid identifier of a consumer which is
 	// assigned to the usage record
 	Consumer *string `json:"consumer"`
+
+	// MunicipalityKey contains the key which references the municipality in
+	// which the usage occurred
+	MunicipalityKey string `json:"municipality"`
 
 	// Amount contains the used water amount in cubic meters
 	Amount float64 `json:"amount"`
@@ -34,6 +41,11 @@ type UsageRecord struct {
 	// written into the database. To get the time for which the record was made
 	// use the Date attribute of this object
 	RecordedAt int64 `json:"recordedAt"`
+}
+
+// a rendering function which always returns null
+func (rec *UsageRecord) Render(w http.ResponseWriter, r *http.Request) error {
+	return nil
 }
 
 // IncomingUsageType reflects the expected input to the api when creating a new
@@ -55,7 +67,7 @@ type IncomingUsageType struct {
 // database. This struct should be used to return information about a usage type
 // in responses to api requests
 type UsageType struct {
-	IncomingUsageRecord
+	IncomingUsageType
 
 	// ID contains the generated UUID from the database which allows the
 	// identification of this usage type when modifying or deleting it

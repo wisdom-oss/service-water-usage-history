@@ -1,5 +1,7 @@
 package structs
 
+import "net/http"
+
 // ScopeInformation contains the information about the scope for this service
 type ScopeInformation struct {
 	JSONSchema       string `json:"$schema"`
@@ -15,4 +17,8 @@ type ErrorResponse struct {
 	ErrorCode        string `json:"error"`
 	ErrorTitle       string `json:"errorName"`
 	ErrorDescription string `json:"errorDescription"`
+}
+
+func (receiver *ErrorResponse) Render(w http.ResponseWriter, r *http.Request) error {
+	return nil
 }
