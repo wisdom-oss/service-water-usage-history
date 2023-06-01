@@ -5,7 +5,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/httplog"
-	"github.com/wisdom-oss/microservice-middlewares"
+	_ "github.com/wisdom-oss/microservice-middlewares"
+	customMiddleware "microservice/request/middleware"
 	"microservice/request/routes"
 	"microservice/vars/globals"
 	"net/http"
@@ -25,15 +26,18 @@ func main() {
 	router.Use(middleware.RealIP)
 	router.Use(httplog.Handler(globals.HttpLogger))
 	router.Use(middleware.Heartbeat("/healthcheck"))
-	router.Use(wisdomMiddleware.Authorization([]string{"/healthcheck"}, globals.ScopeConfiguration.ScopeValue))
-	//router.Use()
-	router.HandleFunc("/", routes.BasicHandler)
+	router.Use(middleware.Compress(5))
+	//	router.Use(wisdomMiddleware.Authorization([]string{"/healthcheck"}, globals.ScopeConfiguration.ScopeValue))
+	router.Use(customMiddleware.AttachUsageTypes())
+	router.HandleFunc("/all", routes.GetAllUsages)
+	router.HandleFunc("/by-consumer/{consumerId}", routes.GetConsumerUsages)
+
 	// Configure the HTTP server
 	server := &http.Server{
 		Addr:         fmt.Sprintf("0.0.0.0:%s", globals.Environment["LISTEN_PORT"]),
-		WriteTimeout: time.Second * 600,
-		ReadTimeout:  time.Second * 600,
-		IdleTimeout:  time.Second * 600,
+		WriteTimeout: 6 * time.Hour,
+		ReadTimeout:  6 * time.Hour,
+		IdleTimeout:  6 * time.Hour,
 		Handler:      router,
 	}
 
