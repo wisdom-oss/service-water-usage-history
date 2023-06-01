@@ -18,6 +18,17 @@
     "title": "Internal Application Error",
     "description": "An unexpected error occurred during the handling of the request.",
     "httpCode": 500
+  },
+  {
+    "code": "NO_PAGE_END",
+    "title": "No Page End",
+    "description": "When requesting all usage records you need to specify a page end using the 'end' query parameter.",
+    "httpCode": 400
+  },
+  {
+    "code": "PAGE_BOUND_NOT_INT",
+    "title": "Page Bound is Not Integer",
+    "description": "The page bound you specified is not an integer.",
+    "httpCode": 400
   }
-  // and this line. you may extend below this line
 ]
