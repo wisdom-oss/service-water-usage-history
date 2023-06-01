@@ -105,6 +105,24 @@ servers:
 paths:
     /:
       get:
+        parameters:
+          - in: query
+            required: false
+            name: start
+            schema:
+              type: integer
+              minimum: 1
+              default: 1
+            description: |
+                The start of the IDs that shall be returned (inclusive)
+          - in: query
+            required: true
+            name: end
+            schema:
+              type: integer
+              minimum: 1
+            description: |
+              The end of the IDs that shall be returned (inclusive)
         tags:
           - Unrecommended Endpoints
           - Usage Record Endpoints
@@ -113,7 +131,7 @@ paths:
           This endpoint allows users to get all stored water usage records from the database.
           
           > **Important Note:** Using this method may take a long time to complete and will result in a 
-          >  very large response body. It is recommended to use other methods to retrieve the records.
+          >  very large response body.
         responses:
           200:
             description: Water Usage History contains entries
@@ -125,32 +143,6 @@ paths:
                     The array of water usage entries for the consumer
                   items:
                     $ref: '#/components/schemas/WaterUsageRecord'
-
-      post:
-        tags:
-          - Usage Record Endpoints
-        summary: Create a new water usage record
-        description: |
-          This endpoint allows users to create a new water usage record
-        requestBody:
-          description: |
-            The new water usage record to be created
-          required: true
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/IncomingWaterUsageRecord'
-        responses:
-          201:
-            description: The water usage record was created successfully
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/WaterUsageRecord'
-          400:
-            description: The supplied water usage record is invalid
-          409:
-            description: The supplied water usage record conflicts with an existing record
 
 
     /by-consumer/{consumerId}:
@@ -186,38 +178,3 @@ paths:
             description: The consumer ID is not a valid UUID
           404:
             description: The consumer ID is not known
-
-    /by-usageType/{usageType}:
-      get:
-        tags:
-          - Usage Type Related Endpoints
-          - Usage Record Endpoints
-        parameters:
-          - in: path
-            required: true
-            name: usageType
-            schema:
-              type: string
-        summary: Retrieve the water usage history for a usage type
-        description: |
-          This endpoint allows users to get a history of the recorded water
-          usages for a known usage type
-        responses:
-          200:
-            description: Water Usage History contains entries
-            content:
-              application/json:
-                schema:
-                  type: array
-                  description: |
-                    The array of water usage entries for the consumer
-                  items:
-                    $ref: '#/components/schemas/WaterUsageRecord'
-          204:
-            description: No Water Usage Records found for this consumer
-          400:
-            description: The consumer ID is not a valid UUID
-          404:
-            description: The consumer ID is not known
-
-
