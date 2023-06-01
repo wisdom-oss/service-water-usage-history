@@ -15,6 +15,16 @@ WHERE
 
 
 /* Queries related to the usage types */
+-- Get all usage types
+-- name: get-all-usage-types
+SELECT
+    id,
+    name,
+    description,
+    external_identifier
+FROM
+    water_usage.usage_types;
+
 -- Get a usage type by it's UUID
 -- name: get-single-usage-type-by-id
 SELECT
@@ -94,8 +104,8 @@ SELECT
     created_at,
     amount
 FROM
-    water_usage.usages;
-
+    water_usage.usages
+WHERE id BETWEEN $1 AND $2;
 -- Get water usages by consumer
 -- name: get-consumers-usages
 SELECT
