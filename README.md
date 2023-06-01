@@ -1,32 +1,20 @@
-# Water Usage History
-This service enables the frontend to display the usage history of a consumer
+# WISdoM OSS - Water Usage Service
+![Golang Version](https://img.shields.io/github/go-mod/go-version/wisdom-oss/service-water-usage-history?filename=src%2Fgo.mod&style=for-the-badge)
+[![OpenAPI Documentation](https://img.shields.io/badge/Schema%20Version-3.0.0-6BA539?style=for-the-badge&logo=OpenAPI%20Initiative)](./openapi.yaml)
+
+This microservice allows authorized users to get the water usage history
+of a single consumer or create new water usage records.
+
+## Usage
+To use this service in the default deployment you need to be a member of the
+`usage-history` group. If this group does not exist in your identity provider
+you may need to create it before being able to access this microservice.
+
+Further documentation is available in the 
+[`docs` repository](https://github.com/wisdom-oss/docs)
 
 ## Deployment
-Use the following snippet to add this service to your custom deployment
-```yaml
-services:
-  water-usage-history:
-    build: https://github.com/wisdom-oss/service-water-usage-history#dev
-    image: wisdom-oss/services/water-usage-history
-    restart: always
-    stop_grace_period: 1m
-    deploy:
-      mode: replicated
-      replicas: 3
-    expose:
-      - 5000
-    depends_on:
-      - service-registry
-      - message-broker
-      - postgres
-    environment:
-      - CONFIG_DB_DSN=postgresql://postgres:<<gen-postgres-pass>>@postgres:5432/wisdom
-      - CONFIG_AMQP_DSN=amqp://wisdom:<<gen-pass-rabbitmq>>@message-broker/%2F?heartbeat=600
-      - CONFIG_SERVICE_REGISTRY_HOST=service-registry
-      - CONFIG_SERVICE_NAME=water-usage-history
-    logging:
-      driver: "json-file"
-      options:
-        max-size: 5m
-        max-file: 5
-```
+This service is deployed by default on the WISdoM Platform. Therefore, no action
+is needed by you to deploy the microservice
+
+
