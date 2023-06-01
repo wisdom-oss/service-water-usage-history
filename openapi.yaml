@@ -103,7 +103,7 @@ components:
 servers:
   - url: '/api/usages'
 paths:
-    /:
+    /all:
       get:
         parameters:
           - in: query
