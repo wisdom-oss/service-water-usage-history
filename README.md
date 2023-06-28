@@ -1,29 +1,74 @@
-# WISdoM OSS - Golang Microservice Template
-![GitHub go.mod Go version (subdirectory of monorepo)](https://img.shields.io/github/go-mod/go-version/wisdom-oss/microservice-template?filename=src%2Fgo.mod&style=for-the-badge)
+# WISdoM OSS — Microservice Template
+> **Warning**
+> This repository only acts as template and _should never be cloned or forked_ 
+> when creating a new microservice with this template.
 
+## Using the template
+1. Download this archive as `.zip` or `.tar.gz` (whatever you prefer)
 
-This repository contains the source code for a new microservice. You may use this source code
-for creating a new microservice which automatically registers at the api gateway and sets up
-a route on the gateway if needed.
+2. Extract the downloaded archive to a directory of your choice and remove the
+    parent folders which may have been created during the download
 
-**DO NOT FORK THIS REPOSITORY SINCE THE COMMIT HISTORY WILL BE TRANSFERRED INTO THE NEW REPOSITORY**
+3. Make sure that your folder now contains at least the following file structure:
+   ```
+   ├── globals
+   │  ├── connections.go      (contains globally available connections)
+   │  ├── variables.go        (contains globally available variables)
+   ├── resources
+   │  ├── authConfig.json     (contains auth config)
+   │  ├── environment.json    (contains the environment setup)
+   │  ├── errors.json         (contains http errors)
+   │  ├── queries.sql         (contains sql queries for the service)
+   ├── routes
+   │  ├── templates.go        (contains three template routes)
+   ├── .gitignore
+   ├── init.go                (contains code used during startup)
+   ├── template-service.go    (contains the bootstrapping code for the service)
+   ├── go.mod                 (contains the dependencies of the service)
+   ├── go.sum                 (is the lockfile for the dependencies)
+   ```
+   
+4. **Important** Change the service name
 
-## Development Steps
-0. Install Golang on your development machine if not already installed
-1. Download the repository as archive to your development machine
-2. Create a new empty repository for your new service
-3. Decompress the downloaded archive into the empty repository
-4. You may now make your initial commit in the repository
-5. Look for all TODOs in the files and act according to the TODOs
-6. Enjoy writing your own microservice
+    To change the service name, you need to edit the file `globals/variables.go`
+    which should contain the following line
+    
+    ```go 
+    const ServiceName = "template-service"
+    ```
+   
+    This line needs to be changed to your service name. This constant is
+    used in logs and error handling to identify the service.
+   
+5. Initialize a Git Repository with `main` as default branch
 
-## Configuration
+    ```shell
+   git init -b main
+    ```
+6. Add all files to the repository
 
-The microservice template is configurable via the following environment variables:
-- `CONFIG_LOGGING_LEVEL` &#8594; Set the logging verbosity [optional, default `INFO`]
-- `CONFIG_API_GATEWAY_HOST` &#8594; Set the host on which the API Gateway runs on **[required]**
-- `CONFIG_API_GATEWAY_ADMIN_PORT` &#8594; Set the port on which the API Gateway listens on **[required]**
-- `CONFIG_API_GATEWAY_SERVICE_PATH` &#8594; Set the path under which the service shall be reachable. _Do not prepend the path with `/api`. Only set the last part of the desired path_ **[required]**
-- `CONFIG_HTTP_LISTEN_PORT` &#8594; The port on which the built-in webserver will listen on [optional, default `8000`]
-- `CONFIG_SCOPE_FILE_PATH` &#8594; The location where the scope definition file is stored [optional, default `/microservice/res/scope.json]
+    ```shell
+   git add -A
+    ```
+   
+7. Commit the template to the repository
 
+    ```shell
+   git commit -m "loading wisdom-oss/microservice-template"
+   ```
+   
+8. Set up a remote origin for the repository
+
+    ```shell
+   git remote add origin <your-remote-url>
+    ```
+   
+9. Push the repository to the remote origin
+
+    ```shell
+   git push origin main
+    ```
+   
+10. :tada: You are now able to develop your new microservice
+
+11. Change the README to the contents you desire in here
