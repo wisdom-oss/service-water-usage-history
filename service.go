@@ -2,16 +2,18 @@ package main
 
 import (
 	"fmt"
-	"github.com/go-chi/chi/v5"
-	chiMiddleware "github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/httplog"
-	"github.com/rs/zerolog/log"
-	wisdomMiddleware "github.com/wisdom-oss/microservice-middlewares/v2"
-	"microservice/routes"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/go-chi/chi/v5"
+	chiMiddleware "github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/httplog"
+	"github.com/rs/zerolog/log"
+	wisdomMiddleware "github.com/wisdom-oss/microservice-middlewares/v3"
+
+	"microservice/routes"
 
 	"microservice/globals"
 )
@@ -20,14 +22,13 @@ import (
 // microservice
 func main() {
 	// create a new logger for the main function
-	l := log.With().Str("step", "main-service").Logger()
+	l := log.With().Str("step", "main").Logger()
 	l.Info().Msgf("starting %s service", globals.ServiceName)
 
 	// create a new router
 	router := chi.NewRouter()
 	// add some middlewares to the router to allow identifying requests
-	router.Use(wisdomMiddleware.NativeErrorHandler(globals.ServiceName))
-	router.Use(wisdomMiddleware.WISdoMErrorHandler(globals.Errors))
+	router.Use(wisdomMiddleware.ErrorHandler(globals.ServiceName, globals.Errors))
 	router.Use(chiMiddleware.RequestID)
 	router.Use(chiMiddleware.RealIP)
 	router.Use(httplog.Handler(l))

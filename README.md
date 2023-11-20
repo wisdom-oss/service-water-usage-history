@@ -1,7 +1,14 @@
-# WISdoM OSS — Microservice Template
-> **Warning**
-> This repository only acts as template and _should never be cloned or forked_ 
-> when creating a new microservice with this template.
+<div align="center">
+<img height="150px" src="https://raw.githubusercontent.com/wisdom-oss/brand/main/svg/standalone_color.svg">
+<h1>Microservice Template/Example</h1>
+<h3>service-example</h3>
+<p>📐 A minimal working example for microservices in the WISdoM Architecture</p>
+<img src="https://img.shields.io/github/go-mod/go-version/wisdom-oss/microservice-template?style=for-the-badge"
+alt="Go Lang Version"/>
+<a href="openapi.yaml">
+<img src="https://img.shields.io/badge/Schema%20Version-3.0.0-6BA539?style=for-the-badge&logo=OpenAPI%20Initiative" alt="Open
+API Schema Version"/></a>
+</div>
 
 ## Using the template
 1. Download this archive as `.zip` or `.tar.gz` (whatever you prefer)

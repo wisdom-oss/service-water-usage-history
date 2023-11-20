@@ -4,6 +4,9 @@
 # allow the gitignore file itself
 !.gitignore
 
+# allow markdown files
+!*.md
+
 # now allow all documenttion files
 !README.md
 !openapi.yaml
