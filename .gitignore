@@ -4,6 +4,15 @@
 # allow the gitignore file itself
 !.gitignore
 
+# allow all files in the static_docs directory
+!static_docs
+!static_docs/**
+
+# allow github workflows
+!.github
+!.github/workflows
+!.github/workflows/*.yaml
+
 # allow markdown files
 !*.md
 
