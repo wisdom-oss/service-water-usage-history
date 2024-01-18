@@ -3,6 +3,8 @@ package routes
 import (
 	"errors"
 	"net/http"
+
+	wisdomMiddleware "github.com/wisdom-oss/microservice-middlewares/v3"
 )
 
 // BasicHandler contains just a response, that is used to show the templating
@@ -10,18 +12,13 @@ func BasicHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("hello there"))
 }
 
-func BasicWithInternalErrorHandling(w http.ResponseWriter, r *http.Request) {
+func BasicWithErrorHandling(w http.ResponseWriter, r *http.Request) {
 	// access the error handlers
-	nativeErrorChannel := r.Context().Value("nativeErrorChannel").(chan error)
+	errorHandler := r.Context().Value(wisdomMiddleware.ERROR_CHANNEL_NAME).(chan interface{})
+	statusChannel := r.Context().Value(wisdomMiddleware.STATUS_CHANNEL_NAME).(chan bool)
 	// now publish an error to each of the wisdom errors
-	nativeErrorChannel <- errors.New("native test error")
-	return
-}
-
-func BasicWithWISdoMErrorHandling(w http.ResponseWriter, r *http.Request) {
-	// access the error handlers
-	wisdomErrorChannel := r.Context().Value("wisdomErrorChannel").(chan string)
-	// now publish an error to each of the wisdom errors
-	wisdomErrorChannel <- "TEMPLATE"
+	errorHandler <- errors.New("native test error")
+	// now wait for the error to be handled
+	<-statusChannel
 	return
 }
