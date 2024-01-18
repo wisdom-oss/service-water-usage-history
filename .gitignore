@@ -10,15 +10,19 @@
 
 # allow github workflows
 !.github
+!.github/*.yaml
 !.github/workflows
 !.github/workflows/*.yaml
 
 # allow markdown files
 !*.md
 
-# now allow all documenttion files
+# now allow all documentation files
 !README.md
 !openapi.yaml
+
+# now allow the Dockerfile
+!Dockerfile
 
 # now allow all files in the resources directory
 !resources
