@@ -14,3 +14,4 @@ ARG GH_VERSION=unset
 LABEL org.opencontainers.image.source=https://github.com/$GH_REPO
 LABEL org.opencontainers.image.version=$GH_VERSION
 EXPOSE 8000
+HEALTHCHECK --interval=15s --timeout=10s CMD /service -health

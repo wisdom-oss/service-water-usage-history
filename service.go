@@ -25,6 +25,18 @@ func main() {
 	l := log.With().Str("step", "main").Logger()
 	l.Info().Msgf("starting %s service", globals.ServiceName)
 
+	// create the healthcheck server
+	hcServer := HealthcheckServer{}
+	hcServer.Init(func() error {
+		// test if the database is reachable
+		return globals.Db.Ping()
+	})
+	go func() {
+		if err := hcServer.Start(); err != nil {
+			l.Fatal().Err(err).Msg("unable to start healthcheck server")
+		}
+	}()
+
 	// create a new router
 	router := chi.NewRouter()
 	// add some middlewares to the router to allow identifying requests
@@ -61,6 +73,7 @@ func main() {
 	signal.Notify(cancelSignal, os.Interrupt)
 
 	// Block further code execution until the shutdown signal was received
+	l.Info().Msg("server ready to accept connections")
 	<-cancelSignal
 
 }

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"net"
 	"os"
 	"strings"
 
@@ -66,6 +67,31 @@ func init() {
 	// since now a logging level is set, configure the logger
 	zerolog.SetGlobalLevel(loggingLevel)
 	l = log.With().Str("step", "init").Logger()
+}
+
+// this function checks if a healthcheck has been requested and executes it if
+func init() {
+	args := os.Args[1:]
+	if len(args) > 0 && args[0] == "-health" {
+		conn, err := net.Dial("unix", socketPath)
+		if err != nil {
+			fmt.Fprint(os.Stderr, "unable to connect to unix socket:", err.Error())
+			os.Exit(1)
+		}
+
+		conn.Write([]byte("ping\n"))
+
+		inputBuffer := make([]byte, BUF_SIZE)
+		n, _ := conn.Read(inputBuffer)
+
+		returnedMessage := strings.TrimSpace(string(inputBuffer[:n-1]))
+
+		if returnedMessage != "success" {
+			fmt.Fprint(os.Stderr, returnedMessage)
+			os.Exit(1)
+		}
+		os.Exit(0)
+	}
 }
 
 // this function initializes the environment variables used in this microservice
