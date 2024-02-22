@@ -4,15 +4,13 @@ import (
 	"context"
 	"fmt"
 	"net"
-	"os"
 	"strings"
 )
 
-const socketPath = "/tmp/healthcheck.socket"
+const tcpSocket = "127.0.0.1:9999"
 const BUF_SIZE = 4096
 
 type HealthcheckServer struct {
-	socketPath      string
 	socket          net.Listener
 	ctx             context.Context
 	cancel          context.CancelFunc
@@ -27,19 +25,12 @@ type HealthcheckServer struct {
 //	srv := HealthcheckServer{}
 //	srv.Init()
 func (s *HealthcheckServer) Init(f func() error) {
-	s.socketPath = socketPath
 	s.ctx, s.cancel = context.WithCancel(context.Background())
 	s.healthcheckFunc = f
 }
 
 func (s *HealthcheckServer) Start() (err error) {
-	if _, err := os.Stat(s.socketPath); err == nil {
-		err = os.Remove(s.socketPath)
-		if err != nil {
-			return err
-		}
-	}
-	s.socket, err = net.Listen("unix", s.socketPath)
+	s.socket, err = net.Listen("tcp", tcpSocket)
 	if err != nil {
 		return err
 	}

@@ -75,19 +75,18 @@ func init() {
 func init() {
 	args := os.Args[1:]
 	if len(args) > 0 && args[0] == "-health" {
-		conn, err := net.Dial("unix", socketPath)
-		conn.SetReadDeadline(time.Now().Add(5 * time.Second))
+		conn, err := net.Dial("tcp", tcpSocket)
 		if err != nil {
-			fmt.Fprint(os.Stderr, "unable to connect to unix socket:", err.Error())
-			os.Exit(1)
+			log.Fatal().Err(err).Msg("unable to connect to tcp socket")
 		}
+		conn.SetReadDeadline(time.Now().Add(5 * time.Second))
 
 		conn.Write([]byte("ping\n"))
 
 		inputBuffer := make([]byte, BUF_SIZE)
 		n, err := conn.Read(inputBuffer)
 		if err != nil && errors.Is(err, os.ErrDeadlineExceeded) {
-			fmt.Fprint(os.Stderr, "http server responded too slow:", err.Error())
+			fmt.Fprint(os.Stderr, "tcp server responded too slow:", err.Error())
 			os.Exit(1)
 		}
 
