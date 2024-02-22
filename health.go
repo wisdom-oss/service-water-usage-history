@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"math/rand"
 	"net"
 	"os"
 	"strings"
@@ -18,26 +17,6 @@ type HealthcheckServer struct {
 	ctx             context.Context
 	cancel          context.CancelFunc
 	healthcheckFunc func() error
-}
-
-// randomString generates a random string of the specified length using
-// characters from the alphabet.
-// The function uses the `letters` slice which contains lowercase and uppercase
-// letters, as well as digits.
-// It creates an empty slice of runes with the desired length and randomly
-// selects a character from `letters` for each position.
-// Finally, it converts the rune slice to a string and returns the result.
-//
-// Example:
-//
-//	s.socketPath = fmt.Sprintf("/tmp/%s.socket", randomString(12))
-func randomString(length int) string {
-	var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
-	s := make([]rune, length)
-	for i := range s {
-		s[i] = letters[rand.Intn(len(letters))]
-	}
-	return string(s)
 }
 
 // Init initializes the HealthcheckServer instance by setting the socketPath
