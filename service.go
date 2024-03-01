@@ -11,6 +11,7 @@ import (
 	chiMiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/httplog"
 	"github.com/rs/zerolog/log"
+	healthcheckServer "github.com/wisdom-oss/go-healthcheck/server"
 	wisdomMiddleware "github.com/wisdom-oss/microservice-middlewares/v3"
 
 	"microservice/routes"
@@ -26,16 +27,16 @@ func main() {
 	l.Info().Msgf("starting %s service", globals.ServiceName)
 
 	// create the healthcheck server
-	hcServer := HealthcheckServer{}
-	hcServer.Init(func() error {
+	hcServer := healthcheckServer.HealthcheckServer{}
+	hcServer.InitWithFunc(func() error {
 		// test if the database is reachable
 		return globals.Db.Ping()
 	})
-	go func() {
-		if err := hcServer.Start(); err != nil {
-			l.Fatal().Err(err).Msg("unable to start healthcheck server")
-		}
-	}()
+	err := hcServer.Start()
+	if err != nil {
+		l.Fatal().Err(err).Msg("unable to start healthcheck server")
+	}
+	go hcServer.Run()
 
 	// create a new router
 	router := chi.NewRouter()

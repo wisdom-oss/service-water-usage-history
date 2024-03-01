@@ -3,12 +3,9 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
-	"errors"
 	"fmt"
-	"net"
 	"os"
 	"strings"
-	"time"
 
 	wisdomType "github.com/wisdom-oss/commonTypes"
 
@@ -22,6 +19,7 @@ import (
 	"microservice/globals"
 
 	_ "github.com/lib/pq"
+	_ "github.com/wisdom-oss/go-healthcheck/client"
 )
 
 var l zerolog.Logger
@@ -69,35 +67,6 @@ func init() {
 	// since now a logging level is set, configure the logger
 	zerolog.SetGlobalLevel(loggingLevel)
 	l = log.With().Str("step", "init").Logger()
-}
-
-// this function checks if a healthcheck has been requested and executes it if
-func init() {
-	args := os.Args[1:]
-	if len(args) > 0 && args[0] == "-health" {
-		conn, err := net.Dial("tcp", tcpSocket)
-		if err != nil {
-			log.Fatal().Err(err).Msg("unable to connect to tcp socket")
-		}
-		conn.SetReadDeadline(time.Now().Add(5 * time.Second))
-
-		conn.Write([]byte("ping\n"))
-
-		inputBuffer := make([]byte, BUF_SIZE)
-		n, err := conn.Read(inputBuffer)
-		if err != nil && errors.Is(err, os.ErrDeadlineExceeded) {
-			fmt.Fprint(os.Stderr, "tcp server responded too slow:", err.Error())
-			os.Exit(1)
-		}
-
-		returnedMessage := strings.TrimSpace(string(inputBuffer[:n-1]))
-
-		if returnedMessage != "success" {
-			fmt.Fprint(os.Stderr, returnedMessage)
-			os.Exit(1)
-		}
-		os.Exit(0)
-	}
 }
 
 // this function initializes the environment variables used in this microservice
