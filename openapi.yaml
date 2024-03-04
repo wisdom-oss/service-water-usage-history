@@ -1,180 +1,118 @@
 openapi: 3.0.3
 info:
-  title: Water Usage Management Microservice
+  title: Water Usage History Microservice
   description: |
     [![GitHub Repo](https://img.shields.io/badge/GitHub%20Repository-service--water--usage--history-333?style=for-the-badge&logo=github)](https://github.com/wisdom-oss/service-water-usage-history)
     
     This microservice allows authenticated API users to retrieve the recorded
     water usages for a known consumer.
-    
-    Furthermore, it allows authenticated API users to store new water usage
-    records in the database and make time based queries for the water usage
-    between two dates.
-  version: 2.0.0
+  
 
-tags:
-    - name: Usage Record Endpoints
-      description: |
-        These Endpoints are related to the water usage records of the water usage history
-    - name: Consumer Related Endpoints
-      description: |
-          These endpoints are related to the consumers of the water usage history
-          microservice.
-    - name: Usage Type Related Endpoints
-      description: |
-          These endpoints are related to the usage types of the water usage history
-          microservice.
-    - name: Unrecommended Endpoints
-      description: |
-            These endpoints are not recommended for use in production environments
-            due to their potentially large response bodies or long response times.
+  version: 3.0.0
 
 components:
   schemas:
-    IncomingWaterUsageRecord:
-      title: New Water Usage Record
+    Error:
+      description: A error returned by the API
       type: object
       properties:
-        date:
+        type:
+          type: string
+        status:
           type: integer
-          format: int64
-          minimum: 0
-          description: The date for which the usage was recorded as UNIX timestamp
-          required: true
+        title:
+          type: string
+        detail:
+          type: string
+        instance:
+          type: string
+        error:
+          type: string
+      required:
+        - type
+        - status
+        - title
+        - detail
+        - instance
+
+    UsageRecord:
+      description: A single usage record as shown in the database
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        amount:
+          type: number
+          format: float8
         usageType:
           type: string
-          description: |
-            The usage type for this record.
-            
-            **Note:** This field is optional when supplying a consumer which has a default usage type
-          required: false
+          format: uuid
         consumer:
           type: string
           format: uuid
-          description: |
-            The consumer for which the usage was recorded.
-          required: false
-        amount:
-          type: number
-          format: double
-          description: The amount of used water in cubic meters
-          required: true
-          minimum: 0
-    WaterUsageRecord:
-      title: Water Usage Record
-      type: object
-      properties:
-        recordID:
-          type: integer
-          format: int64
-          description: |
-            The unique ID of the record which may be used to
-            delete the record
-          required: true
-        date:
-          type: integer
-          format: int64
-          minimum: 0
-          description: The date for which the usage was recorded as UNIX timestamp
-          required: true
-        amount:
-          type: number
-          format: double
-          description: The amount of used water in cubic meters
-          required: true
-          minimum: 0
-        usageType:
+        municipality:
           type: string
-          description: The usage type for this record
-          required: false
-        consumer:
-          type: string
-          format: uuid
-          description: |
-            The consumer for which the usage was recorded.
-          required: false
-        recordedAt:
-          type: integer
-          format: int64
-          required: true
-          minimum: 0
-          description: |
-            The UNIX timestamp of the recording for this entry
-servers:
-  - url: '/usages'
+          title: Official Regional Code
+          description: |-
+            This code allows the identification of the municipality in which the
+            usage record has been taken. It is only applicable in Germany.
+      required:
+        - timestamp
+        - amount
+        - municipality
+
+  responses:
+    Usages:
+      description: A list of usage records
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/UsageRecord'
+
 paths:
-    /all:
-      get:
-        parameters:
-          - in: query
-            required: false
-            name: start
-            schema:
-              type: integer
-              minimum: 1
-              default: 1
-            description: |
-                The start of the IDs that shall be returned (inclusive)
-          - in: query
-            required: true
-            name: end
-            schema:
-              type: integer
-              minimum: 1
-            description: |
-              The end of the IDs that shall be returned (inclusive)
-        tags:
-          - Unrecommended Endpoints
-          - Usage Record Endpoints
-        summary: Get all stored water usage records
-        description: |
-          This endpoint allows users to get all stored water usage records from the database.
-          
-          > **Important Note:** Using this method may take a long time to complete and will result in a 
-          >  very large response body.
-        responses:
-          200:
-            description: Water Usage History contains entries
-            content:
-              application/json:
-                schema:
-                  type: array
-                  description: |
-                    The array of water usage entries for the consumer
-                  items:
-                    $ref: '#/components/schemas/WaterUsageRecord'
-
-
-    /by-consumer/{consumerId}:
-      get:
-        tags:
-          - Consumer Related Endpoints
-          - Usage Record Endpoints
-        parameters:
-          - in: path
-            required: true
-            name: consumerId
-            schema:
+  /:
+    get:
+      summary: Get Usage Records
+      parameters:
+        - in: query
+          name: page-size
+          description: The size of the response that is returned (to allow pagination)
+          allowEmptyValue: false
+          allowReserved: false
+          required: false
+          schema:
+            type: integer
+            default: 10000
+        - in: query
+          name: page
+          description: The page that shall be returned
+          allowEmptyValue: false
+          allowReserved: false
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: municipal
+          description: |
+            The official regional code (ARS) of the municipality/municipalities
+            that should be filtered for
+          required: false
+          schema:
+            default: null
+            type: array
+            items:
               type: string
-              format: uuid
-        summary: Retrieve the water usage history for a consumer
-        description: |
-          This endpoint allows users to get a history of the recorded water
-          usages for a known consumer
-        responses:
-          200:
-            description: Water Usage History contains entries
-            content:
-              application/json:
-                schema:
-                  type: array
-                  description: |
-                    The array of water usage entries for the consumer
-                  items:
-                    $ref: '#/components/schemas/WaterUsageRecord'
-          204:
-            description: No Water Usage Records found for this consumer
-          400:
-            description: The consumer ID is not a valid UUID
-          404:
-            description: The consumer ID is not known
+              maxLength: 12
+      responses:
+        200:
+          $ref: '#/components/responses/Usages'
+        413:
+          description: Page Size Too Large
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
