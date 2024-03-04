@@ -15,18 +15,33 @@ import (
 	"microservice/types"
 )
 
-func TestAllUsages_NoPageSize_NoPageNumber(t *testing.T) {
-	var expectedHttpCode = http.StatusOK
+var usageTestRouter chi.Router
+var usageTestMap = map[string]func(t *testing.T){
+	"No Parameters":        noParameters,
+	"Page Number":          pageNumberOnly,
+	"Page Size":            pageSizeOnly,
+	"Page Size and Number": pageSizeAndNumber,
+	"Page Size Too Large":  pageSizeTooLarge,
+}
 
-	router := chi.NewRouter()
-	router.Use(middleware.ErrorHandler)
-	router.Get("/", AllUsages)
+func TestAllUsages(t *testing.T) {
+	usageTestRouter = chi.NewRouter()
+	usageTestRouter.Use(middleware.ErrorHandler)
+	usageTestRouter.Get("/", AllUsages)
+	for testName, test := range usageTestMap {
+		t.Run(testName, test)
+	}
+}
+
+func noParameters(t *testing.T) {
+	t.Parallel()
+	var expectedHttpCode = http.StatusOK
 
 	request := httptest.NewRequest("GET", "/", nil)
 	recorder := httptest.NewRecorder()
 
-	_ = validator.NewValidator(apiContract).ForTest(t, recorder, request)
-	router.ServeHTTP(recorder, request)
+	_ = apiValidator.ForTest(t, recorder, request)
+	usageTestRouter.ServeHTTP(recorder, request)
 
 	// Assert the response status code
 	if recorder.Result().StatusCode != expectedHttpCode {
@@ -45,18 +60,14 @@ func TestAllUsages_NoPageSize_NoPageNumber(t *testing.T) {
 	}
 }
 
-func TestAllUsages_NoPageSize_PageNumber(t *testing.T) {
+func pageNumberOnly(t *testing.T) {
+	t.Parallel()
 	var expectedHttpCode = http.StatusOK
-
-	router := chi.NewRouter()
-	router.Use(middleware.ErrorHandler)
-	router.Get("/", AllUsages)
-
 	request := httptest.NewRequest("GET", "/?page=2", nil)
 	recorder := httptest.NewRecorder()
 
 	_ = validator.NewValidator(apiContract).ForTest(t, recorder, request)
-	router.ServeHTTP(recorder, request)
+	usageTestRouter.ServeHTTP(recorder, request)
 
 	// Assert the response status code
 	if recorder.Result().StatusCode != expectedHttpCode {
@@ -75,19 +86,16 @@ func TestAllUsages_NoPageSize_PageNumber(t *testing.T) {
 	}
 }
 
-func TestAllUsages_PageSize_NoPageNumber(t *testing.T) {
+func pageSizeOnly(t *testing.T) {
+	t.Parallel()
 	var expectedHttpCode = http.StatusOK
 	var pageSize = 10
-
-	router := chi.NewRouter()
-	router.Use(middleware.ErrorHandler)
-	router.Get("/", AllUsages)
 
 	request := httptest.NewRequest("GET", fmt.Sprintf("/?page-size=%d", pageSize), nil)
 	recorder := httptest.NewRecorder()
 
 	_ = validator.NewValidator(apiContract).ForTest(t, recorder, request)
-	router.ServeHTTP(recorder, request)
+	usageTestRouter.ServeHTTP(recorder, request)
 
 	// Assert the response status code
 	if recorder.Result().StatusCode != expectedHttpCode {
@@ -106,20 +114,17 @@ func TestAllUsages_PageSize_NoPageNumber(t *testing.T) {
 	}
 }
 
-func TestAllUsages_PageSize_PageNumber(t *testing.T) {
+func pageSizeAndNumber(t *testing.T) {
+	t.Parallel()
 	var expectedHttpCode = http.StatusOK
 	var pageSize = 10
 	var pageNumber = 2
-
-	router := chi.NewRouter()
-	router.Use(middleware.ErrorHandler)
-	router.Get("/", AllUsages)
 
 	request := httptest.NewRequest("GET", fmt.Sprintf("/?page-size=%d&page=%d", pageSize, pageNumber), nil)
 	recorder := httptest.NewRecorder()
 
 	_ = validator.NewValidator(apiContract).ForTest(t, recorder, request)
-	router.ServeHTTP(recorder, request)
+	usageTestRouter.ServeHTTP(recorder, request)
 
 	// Assert the response status code
 	if recorder.Result().StatusCode != expectedHttpCode {
@@ -138,19 +143,16 @@ func TestAllUsages_PageSize_PageNumber(t *testing.T) {
 	}
 }
 
-func TestAllUsages_PageSizeTooLarge_NoPageNumber(t *testing.T) {
+func pageSizeTooLarge(t *testing.T) {
+	t.Parallel()
 	var expectedHttpCode = ErrPageTooLarge.Status
 	var pageSize = MaxPageSize + 1
-
-	router := chi.NewRouter()
-	router.Use(middleware.ErrorHandler)
-	router.Get("/", AllUsages)
 
 	request := httptest.NewRequest("GET", fmt.Sprintf("/?page-size=%d", pageSize), nil)
 	recorder := httptest.NewRecorder()
 
 	_ = validator.NewValidator(apiContract).ForTest(t, recorder, request)
-	router.ServeHTTP(recorder, request)
+	usageTestRouter.ServeHTTP(recorder, request)
 
 	// Assert the response status code
 	if recorder.Result().StatusCode != expectedHttpCode {

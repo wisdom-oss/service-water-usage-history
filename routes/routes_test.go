@@ -10,6 +10,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/qustavo/dotsql"
 	wisdomType "github.com/wisdom-oss/commonTypes/v2"
+	validator "openapi.tanna.dev/go/validator/openapi3"
 
 	"github.com/getkin/kin-openapi/openapi3"
 
@@ -17,6 +18,7 @@ import (
 )
 
 var apiContract *openapi3.T
+var apiValidator validator.Validator
 
 func TestMain(m *testing.M) {
 	godotenv.Load("../.env", ".env")
@@ -67,6 +69,7 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 
+	apiValidator = validator.NewValidator(apiContract)
 	// now run the tests
 	os.Exit(m.Run())
 }
