@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
@@ -12,7 +13,7 @@ import (
 	"github.com/go-chi/httplog"
 	"github.com/rs/zerolog/log"
 	healthcheckServer "github.com/wisdom-oss/go-healthcheck/server"
-	wisdomMiddleware "github.com/wisdom-oss/microservice-middlewares/v3"
+	wisdomMiddleware "github.com/wisdom-oss/microservice-middlewares/v4"
 
 	"microservice/routes"
 
@@ -30,7 +31,7 @@ func main() {
 	hcServer := healthcheckServer.HealthcheckServer{}
 	hcServer.InitWithFunc(func() error {
 		// test if the database is reachable
-		return globals.Db.Ping()
+		return globals.Db.Ping(context.Background())
 	})
 	err := hcServer.Start()
 	if err != nil {
@@ -41,12 +42,12 @@ func main() {
 	// create a new router
 	router := chi.NewRouter()
 	// add some middlewares to the router to allow identifying requests
-	router.Use(wisdomMiddleware.ErrorHandler(globals.ServiceName, globals.Errors))
+	router.Use(httplog.Handler(l))
 	router.Use(chiMiddleware.RequestID)
 	router.Use(chiMiddleware.RealIP)
-	router.Use(httplog.Handler(l))
+	router.Use(wisdomMiddleware.ErrorHandler)
 	// now add the authorization middleware to the router
-	router.Use(wisdomMiddleware.Authorization(globals.AuthorizationConfiguration, globals.ServiceName))
+	router.Use(wisdomMiddleware.Authorization(globals.ServiceName))
 	// now mount the admin router
 	router.HandleFunc("/", routes.BasicHandler)
 	router.HandleFunc("/internal-error", routes.BasicWithErrorHandling)
