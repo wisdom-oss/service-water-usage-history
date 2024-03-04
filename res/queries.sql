@@ -119,7 +119,9 @@ SELECT
 FROM
     water_usage.usages
 WHERE
-    consumer = $1::uuid;
+    consumer = $1::uuid
+ORDER BY
+    date;
 
 -- Get water usages by type
 -- name: get-type-based-usages
