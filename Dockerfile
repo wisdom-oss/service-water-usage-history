@@ -1,5 +1,5 @@
 FROM golang:alpine AS build-service
-COPY src /tmp/src
+COPY . /tmp/src
 WORKDIR /tmp/src
 RUN mkdir -p /tmp/build
 RUN go mod download

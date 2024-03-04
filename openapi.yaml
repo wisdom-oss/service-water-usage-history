@@ -101,7 +101,7 @@ components:
           description: |
             The UNIX timestamp of the recording for this entry
 servers:
-  - url: '/api/usages'
+  - url: '/usages'
 paths:
     /all:
       get:
