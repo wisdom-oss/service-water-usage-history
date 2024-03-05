@@ -1,30 +1,18 @@
 package routes
 
 import (
-	"encoding/csv"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
-	"strings"
-	"time"
 
 	"github.com/fxamacker/cbor/v2"
 	"github.com/georgysavva/scany/v2/pgxscan"
-	wisdomType "github.com/wisdom-oss/commonTypes/v2"
 
 	"microservice/globals"
 	"microservice/types"
 
 	wisdomMiddleware "github.com/wisdom-oss/microservice-middlewares/v4"
 )
-
-var ErrPageTooLarge = wisdomType.WISdoMError{
-	Type:   "https://www.rfc-editor.org/rfc/rfc9110#section-15.5.14",
-	Status: 413,
-	Title:  "Page Size Too Large",
-	Detail: fmt.Sprintf("Due to limitations on the system side, the selected page size is too large too handle. Please select a value smaller than %d", MaxPageSize),
-}
 
 func AllUsages(w http.ResponseWriter, r *http.Request) {
 	errorHandler := r.Context().Value(wisdomMiddleware.ErrorChannelName).(chan<- interface{})
@@ -86,26 +74,8 @@ func AllUsages(w http.ResponseWriter, r *http.Request) {
 	switch outputFormat {
 	case types.CSV:
 		w.Header().Set("Content-Type", "text/csv")
-		csvWriter := csv.NewWriter(w)
-		_ = csvWriter.Write([]string{"timestamp", "amount", "usage-type", "consumer", "municipality"})
-		for _, usageRecord := range usages {
-			csvWriter.Flush()
-			timestampString := usageRecord.Timestamp.Time.Format(time.RFC3339)
-			value := fmt.Sprintf("%f", usageRecord.Amount.Float64)
-			consumerID, _ := usageRecord.Consumer.MarshalJSON()
-			consumerIDString := strings.ReplaceAll(string(consumerID), `"`, "")
-			usageTypeID, _ := usageRecord.UsageType.MarshalJSON()
-			usageTypeIDString := strings.ReplaceAll(string(usageTypeID), `"`, "")
-			municipality := usageRecord.Municipality.String
-			err = csvWriter.Write([]string{timestampString, value, usageTypeIDString, consumerIDString, municipality})
-			if err != nil {
-				errorHandler <- err
-				<-statusChannel
-				return
-			}
-			csvWriter.Flush()
-		}
-
+		err = encodeCSV(w, usages)
+		break
 	case types.CBOR:
 		w.Header().Set("Content-Type", "application/cbor")
 		err = cbor.NewEncoder(w).Encode(usages)
@@ -113,6 +83,7 @@ func AllUsages(w http.ResponseWriter, r *http.Request) {
 	case types.JSON:
 		w.Header().Set("Content-Type", "application/json")
 		err = json.NewEncoder(w).Encode(usages)
+		break
 	}
 
 }

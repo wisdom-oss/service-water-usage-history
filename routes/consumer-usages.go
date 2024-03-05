@@ -1,13 +1,11 @@
 package routes
 
 import (
-	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/fxamacker/cbor/v2"
 	"github.com/georgysavva/scany/v2/pgxscan"
@@ -149,26 +147,8 @@ func ConsumerUsages(w http.ResponseWriter, r *http.Request) {
 	switch outputFormat {
 	case types.CSV:
 		w.Header().Set("Content-Type", "text/csv")
-		csvWriter := csv.NewWriter(w)
-		_ = csvWriter.Write([]string{"timestamp", "amount", "usage-type", "consumer", "municipality"})
-		for _, usageRecord := range usages {
-			csvWriter.Flush()
-			timestampString := usageRecord.Timestamp.Time.Format(time.RFC3339)
-			value := fmt.Sprintf("%f", usageRecord.Amount.Float64)
-			consumerID, _ := usageRecord.Consumer.MarshalJSON()
-			consumerIDString := strings.ReplaceAll(string(consumerID), `"`, "")
-			usageTypeID, _ := usageRecord.UsageType.MarshalJSON()
-			usageTypeIDString := strings.ReplaceAll(string(usageTypeID), `"`, "")
-			municipality := usageRecord.Municipality.String
-			err = csvWriter.Write([]string{timestampString, value, usageTypeIDString, consumerIDString, municipality})
-			if err != nil {
-				errorHandler <- err
-				<-statusChannel
-				return
-			}
-			csvWriter.Flush()
-		}
-
+		err = encodeCSV(w, usages)
+		break
 	case types.CBOR:
 		w.Header().Set("Content-Type", "application/cbor")
 		err = cbor.NewEncoder(w).Encode(usages)
@@ -176,5 +156,6 @@ func ConsumerUsages(w http.ResponseWriter, r *http.Request) {
 	case types.JSON:
 		w.Header().Set("Content-Type", "application/json")
 		err = json.NewEncoder(w).Encode(usages)
+		break
 	}
 }
