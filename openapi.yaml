@@ -111,6 +111,13 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Error'
+        500:
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+                
   /consumer/{consumer-id}:
     get:
       summary: Get Usage Records for Consumer
@@ -158,6 +165,12 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Error'
+        500:
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /municipal/{ars}:
     get:
       summary: Get Usage Records for a municipal
@@ -201,6 +214,12 @@ paths:
                 $ref: '#/components/schemas/Error'
         413:
           description: Page Size Too Large
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Bad Request
           content:
             application/problem+json:
               schema:
