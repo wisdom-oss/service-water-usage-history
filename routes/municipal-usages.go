@@ -68,6 +68,11 @@ func MunicipalUsages(w http.ResponseWriter, r *http.Request) {
 
 	var municipalExists []bool
 	err = pgxscan.Select(r.Context(), globals.Db, &municipalExists, query, ars)
+	if err != nil {
+		errorHandler <- err
+		<-statusChannel
+		return
+	}
 
 	if len(municipalExists) == 0 || municipalExists[0] == false {
 		errorHandler <- ErrUnknownARS
