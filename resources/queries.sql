@@ -36,7 +36,10 @@ AND time < $2
 LIMIT $3 OFFSET $4;
 
 -- name: filter-consumer
-WHERE consumer = $1::uuid
+consumer = $1::uuid
 
 -- name: filter-municipality
-WHERE municipality = $1
+municipality = $1
+
+-- name: check-consumer
+SELECT EXISTS(SELECT consumer FROM time_series.usages WHERE consumer = $1::uuid)
