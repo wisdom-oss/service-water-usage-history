@@ -136,6 +136,12 @@ func MunicipalUsages(w http.ResponseWriter, r *http.Request) {
 	var usages []types.UsageRecord
 	err = pgxscan.ScanAll(&usages, rows)
 
+	if err != nil {
+		errorHandler <- err
+		<-statusChannel
+		return
+	}
+
 	if len(usages) == 0 {
 		w.WriteHeader(http.StatusNoContent)
 		return
@@ -154,5 +160,10 @@ func MunicipalUsages(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		err = json.NewEncoder(w).Encode(usages)
 		break
+	}
+
+	if err != nil {
+		errorHandler <- err
+		<-statusChannel
 	}
 }
