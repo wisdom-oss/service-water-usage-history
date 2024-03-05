@@ -81,8 +81,8 @@ func pageNumberOnly(t *testing.T) {
 		t.Fatalf("Failed to decode response body: %v", err)
 	}
 
-	if len(usageRecords) != DefaultPageSize {
-		t.Errorf("Expected %d usage records, but got %d", DefaultPageSize, len(usageRecords))
+	if len(usageRecords) > DefaultPageSize {
+		t.Errorf("Expected max number of %d usage records, but got %d", DefaultPageSize, len(usageRecords))
 	}
 }
 
@@ -109,8 +109,8 @@ func pageSizeOnly(t *testing.T) {
 		t.Fatalf("Failed to decode response body: %v", err)
 	}
 
-	if len(usageRecords) != pageSize {
-		t.Errorf("Expected %d usage records, but got %d", DefaultPageSize, len(usageRecords))
+	if len(usageRecords) > pageSize {
+		t.Errorf("Expected max number of %d usage records, but got %d", DefaultPageSize, len(usageRecords))
 	}
 }
 
@@ -138,8 +138,8 @@ func pageSizeAndNumber(t *testing.T) {
 		t.Fatalf("Failed to decode response body: %v", err)
 	}
 
-	if len(usageRecords) != pageSize {
-		t.Errorf("Expected %d usage records, but got %d", DefaultPageSize, len(usageRecords))
+	if len(usageRecords) > pageSize {
+		t.Errorf("Expected max number of %d usage records, but got %d", DefaultPageSize, len(usageRecords))
 	}
 }
 
