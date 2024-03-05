@@ -71,6 +71,11 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/UsageRecord'
+        text/csv:
+          schema:
+            type: string
+            pattern: '^timestamp,amount,usage-type,consumer,municipality\n((\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)*(Z|[\+-]\d{2}:\d{2})),(\d+(.\d+)?),(([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})?),(([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})?),((\d{12})?)(\n)?)*'
+        application/cbor: {}
 
 paths:
   /:
@@ -98,20 +103,22 @@ paths:
       responses:
         200:
           $ref: '#/components/responses/Usages'
+        204:
+          description: No Records Found
         413:
           description: Page Size Too Large
           content:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /{consumer-id}:
+  /consumer/{consumer-id}:
     get:
       summary: Get Usage Records for Consumer
       parameters:
         - in: path
           name: consumer-id
           description: The UUID assigned to the consumer
-          allowEmptyValue: true
+          allowEmptyValue: false
           required: true
           schema:
             type: string
@@ -137,6 +144,55 @@ paths:
       responses:
         200:
           $ref: '#/components/responses/Usages'
+        204:
+          description: No Records Found
+        400:
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        413:
+          description: Page Size Too Large
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /municipal/{ars}:
+    get:
+      summary: Get Usage Records for a municipal
+      parameters:
+        - in: path
+          name: ars
+          description: The ARS assigned to the municipality that is selected
+          allowEmptyValue: false
+          required: true
+          schema:
+            type: string
+            maxLength: 12
+        - in: query
+          name: page-size
+          description: The size of the response that is returned (to allow pagination)
+          allowEmptyValue: false
+          allowReserved: false
+          required: false
+          schema:
+            type: integer
+            default: 10000
+        - in: query
+          name: page
+          description: The page that shall be returned
+          allowEmptyValue: false
+          allowReserved: false
+          required: false
+          schema:
+            type: integer
+            default: 1
+      responses:
+        200:
+          $ref: '#/components/responses/Usages'
+        204:
+          description: No Records Found
         400:
           description: Bad Request
           content:
