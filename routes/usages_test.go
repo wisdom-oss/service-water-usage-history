@@ -29,6 +29,7 @@ var usageTestMap = map[string]func(t *testing.T){
 }
 
 func TestAllUsages(t *testing.T) {
+	t.Parallel()
 	usageTestRouter = chi.NewRouter()
 	usageTestRouter.Use(middleware.ErrorHandler)
 	usageTestRouter.Get("/", AllUsages)
@@ -38,7 +39,7 @@ func TestAllUsages(t *testing.T) {
 }
 
 func noParameters(t *testing.T) {
-
+	t.Parallel()
 	var expectedHttpCode = http.StatusOK
 
 	request := httptest.NewRequest("GET", "/", nil)
@@ -65,7 +66,7 @@ func noParameters(t *testing.T) {
 }
 
 func pageNumberOnly(t *testing.T) {
-
+	t.Parallel()
 	var expectedHttpCode = http.StatusOK
 	request := httptest.NewRequest("GET", fmt.Sprintf("/?page=%d", pageNumber), nil)
 	recorder := httptest.NewRecorder()
@@ -91,7 +92,7 @@ func pageNumberOnly(t *testing.T) {
 }
 
 func pageSizeOnly(t *testing.T) {
-
+	t.Parallel()
 	var expectedHttpCode = http.StatusOK
 
 	request := httptest.NewRequest("GET", fmt.Sprintf("/?page-size=%d", pageSize), nil)
@@ -118,7 +119,7 @@ func pageSizeOnly(t *testing.T) {
 }
 
 func pageSizeAndNumber(t *testing.T) {
-
+	t.Parallel()
 	var expectedHttpCode = http.StatusOK
 
 	request := httptest.NewRequest("GET", fmt.Sprintf("/?page-size=%d&page=%d", pageSize, pageNumber), nil)
@@ -145,7 +146,7 @@ func pageSizeAndNumber(t *testing.T) {
 }
 
 func pageSizeTooLarge(t *testing.T) {
-
+	t.Parallel()
 	var expectedHttpCode = ErrPageTooLarge.Status
 	var pageSize = MaxPageSize + 1
 
@@ -173,7 +174,7 @@ func pageSizeTooLarge(t *testing.T) {
 }
 
 func outputJSON(t *testing.T) {
-
+	t.Parallel()
 	var expectedHttpCode = http.StatusOK
 
 	request := httptest.NewRequest("GET", "/", nil)
@@ -197,7 +198,7 @@ func outputJSON(t *testing.T) {
 }
 
 func outputCSV(t *testing.T) {
-
+	t.Parallel()
 	var expectedHttpCode = http.StatusOK
 
 	request := httptest.NewRequest("GET", "/", nil)
@@ -214,7 +215,7 @@ func outputCSV(t *testing.T) {
 }
 
 func outputCBOR(t *testing.T) {
-
+	t.Parallel()
 	var expectedHttpCode = http.StatusOK
 
 	request := httptest.NewRequest("GET", "/", nil)

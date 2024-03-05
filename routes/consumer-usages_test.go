@@ -48,7 +48,7 @@ var consumerUsageTestMap = map[string]func(t *testing.T){
 }
 
 func TestConsumerUsages(t *testing.T) {
-
+	t.Parallel()
 	consumerTestRouter = chi.NewRouter()
 	consumerTestRouter.Use(middleware.ErrorHandler)
 	consumerTestRouter.Get(fmt.Sprintf("/consumer/{%s}", ConsumerIDKey), ConsumerUsages)
@@ -59,7 +59,7 @@ func TestConsumerUsages(t *testing.T) {
 }
 
 func noConsumerID(t *testing.T) {
-
+	t.Parallel()
 	expectedHttpCode := ErrEmptyConsumerID.Status
 
 	// the path set here does not set the consumer-id since it is manually
@@ -99,7 +99,7 @@ func noConsumerID(t *testing.T) {
 }
 
 func invalidConsumerID(t *testing.T) {
-
+	t.Parallel()
 	consumerID := "abc"
 	expectedHttpCode := ErrInvalidConsumerID.Status
 
@@ -127,7 +127,7 @@ func invalidConsumerID(t *testing.T) {
 }
 
 func validConsumerID(t *testing.T) {
-
+	t.Parallel()
 	expectedHttpCode := http.StatusOK
 
 	request := httptest.NewRequest("GET", fmt.Sprintf("/consumer/%s", consumerID), nil)
@@ -163,7 +163,7 @@ func validConsumerID(t *testing.T) {
 }
 
 func consumerUsages_pageNumber(t *testing.T) {
-
+	t.Parallel()
 	expectedHttpCode := http.StatusOK
 
 	request := httptest.NewRequest("GET", fmt.Sprintf("/consumer/%s?page=%d", consumerID, pageNumber), nil)
@@ -194,7 +194,7 @@ func consumerUsages_pageNumber(t *testing.T) {
 }
 
 func consumerUsages_pageSize(t *testing.T) {
-
+	t.Parallel()
 	var expectedHttpCode = http.StatusOK
 
 	request := httptest.NewRequest("GET", fmt.Sprintf("/consumer/%s?page-size=%d", consumerID, pageSize), nil)
@@ -214,7 +214,7 @@ func consumerUsages_pageSize(t *testing.T) {
 }
 
 func consumerUsages_pageSizeAndNumber(t *testing.T) {
-
+	t.Parallel()
 	var expectedHttpCode = http.StatusOK
 
 	request := httptest.NewRequest("GET", fmt.Sprintf("/consumer/%s?page-size=%d&page=%d", consumerID, pageSize, pageNumber), nil)
@@ -245,7 +245,7 @@ func consumerUsages_pageSizeAndNumber(t *testing.T) {
 }
 
 func consumerUsages_pageSizeTooLarge(t *testing.T) {
-
+	t.Parallel()
 	var expectedHttpCode = ErrPageTooLarge.Status
 
 	pageSize := MaxPageSize + 1
@@ -274,7 +274,7 @@ func consumerUsages_pageSizeTooLarge(t *testing.T) {
 }
 
 func consumerUsages_outputJSON(t *testing.T) {
-
+	t.Parallel()
 	var expectedHttpCode = http.StatusOK
 
 	request := httptest.NewRequest("GET", fmt.Sprintf("/consumer/%s", consumerID), nil)
@@ -298,7 +298,7 @@ func consumerUsages_outputJSON(t *testing.T) {
 }
 
 func consumerUsages_outputCSV(t *testing.T) {
-
+	t.Parallel()
 	var expectedHttpCode = http.StatusOK
 
 	request := httptest.NewRequest("GET", fmt.Sprintf("/consumer/%s", consumerID), nil)
@@ -315,7 +315,7 @@ func consumerUsages_outputCSV(t *testing.T) {
 }
 
 func consumerUsages_outputCBOR(t *testing.T) {
-
+	t.Parallel()
 	var expectedHttpCode = http.StatusOK
 
 	request := httptest.NewRequest("GET", fmt.Sprintf("/consumer/%s", consumerID), nil)

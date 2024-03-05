@@ -47,7 +47,7 @@ var municipalUsageTestMap = map[string]func(t *testing.T){
 }
 
 func TestMunicipalUsages(t *testing.T) {
-
+	t.Parallel()
 	municipalTestRouter = chi.NewRouter()
 	municipalTestRouter.Use(middleware.ErrorHandler)
 	municipalTestRouter.Get(fmt.Sprintf("/municipal/{%s}", ARSKey), MunicipalUsages)
@@ -58,7 +58,7 @@ func TestMunicipalUsages(t *testing.T) {
 }
 
 func noARS(t *testing.T) {
-
+	t.Parallel()
 	expectedHttpCode := ErrEmptyConsumerID.Status
 
 	// the path set here does not set the municipal-id since it is manually
@@ -101,7 +101,7 @@ func noARS(t *testing.T) {
 }
 
 func invalidARS(t *testing.T) {
-
+	t.Parallel()
 	ars := "abc"
 	expectedHttpCode := ErrInvalidConsumerID.Status
 
@@ -132,7 +132,7 @@ func invalidARS(t *testing.T) {
 }
 
 func validARS(t *testing.T) {
-
+	t.Parallel()
 	expectedHttpCode := http.StatusOK
 
 	request := httptest.NewRequest("GET", fmt.Sprintf("/municipal/%s", ars), nil)
@@ -167,7 +167,7 @@ func validARS(t *testing.T) {
 }
 
 func municipalUsages_pageNumber(t *testing.T) {
-
+	t.Parallel()
 	expectedHttpCode := http.StatusOK
 
 	request := httptest.NewRequest("GET", fmt.Sprintf("/municipal/%s?page=%d", ars, pageNumber), nil)
@@ -197,7 +197,7 @@ func municipalUsages_pageNumber(t *testing.T) {
 }
 
 func municipalUsages_pageSize(t *testing.T) {
-
+	t.Parallel()
 	var expectedHttpCode = http.StatusOK
 
 	request := httptest.NewRequest("GET", fmt.Sprintf("/municipal/%s?page-size=%d", ars, pageSize), nil)
@@ -216,7 +216,7 @@ func municipalUsages_pageSize(t *testing.T) {
 }
 
 func municipalUsages_pageSizeAndNumber(t *testing.T) {
-
+	t.Parallel()
 	var expectedHttpCode = http.StatusOK
 
 	request := httptest.NewRequest("GET", fmt.Sprintf("/municipal/%s?page-size=%d&page=%d", ars, pageSize, pageNumber), nil)
@@ -246,7 +246,7 @@ func municipalUsages_pageSizeAndNumber(t *testing.T) {
 }
 
 func municipalUsages_pageSizeTooLarge(t *testing.T) {
-
+	t.Parallel()
 	var expectedHttpCode = ErrPageTooLarge.Status
 
 	pageSize := MaxPageSize + 1
@@ -278,7 +278,7 @@ func municipalUsages_pageSizeTooLarge(t *testing.T) {
 }
 
 func municipalUsages_outputJSON(t *testing.T) {
-
+	t.Parallel()
 	var expectedHttpCode = http.StatusOK
 
 	request := httptest.NewRequest("GET", fmt.Sprintf("/municipal/%s", ars), nil)
@@ -302,7 +302,7 @@ func municipalUsages_outputJSON(t *testing.T) {
 }
 
 func municipalUsages_outputCSV(t *testing.T) {
-
+	t.Parallel()
 	var expectedHttpCode = http.StatusOK
 
 	request := httptest.NewRequest("GET", fmt.Sprintf("/municipal/%s", ars), nil)
@@ -319,7 +319,7 @@ func municipalUsages_outputCSV(t *testing.T) {
 }
 
 func municipalUsages_outputCBOR(t *testing.T) {
-
+	t.Parallel()
 	var expectedHttpCode = http.StatusOK
 
 	request := httptest.NewRequest("GET", fmt.Sprintf("/municipal/%s", ars), nil)
