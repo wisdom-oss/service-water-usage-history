@@ -126,9 +126,12 @@ func ConsumerUsages(w http.ResponseWriter, r *http.Request) {
 	}
 
 	queryParts := strings.Split(query, "LIMIT")
-	query = fmt.Sprintf("%s %s LIMIT %s", queryParts[0], filter, queryParts[1])
+	limit := queryParts[1]
+	limit = strings.ReplaceAll(limit, "$2", "$3")
+	limit = strings.ReplaceAll(limit, "$1", "$2")
+	query = fmt.Sprintf("%s WHERE %s LIMIT %s", queryParts[0], filter, limit)
 
-	rows, err := globals.Db.Query(r.Context(), query, pageSize, offset)
+	rows, err := globals.Db.Query(r.Context(), query, consumerID, pageSize, offset)
 	if err != nil {
 		errorHandler <- err
 		<-statusChannel
