@@ -3,6 +3,7 @@ module microservice
 go 1.22.0
 
 require (
+	github.com/getkin/kin-openapi v0.122.0
 	github.com/go-chi/chi/v5 v5.0.12
 	github.com/go-chi/httplog v0.3.2
 	github.com/jackc/pgx/v5 v5.5.3
@@ -10,7 +11,7 @@ require (
 	github.com/qustavo/dotsql v1.2.0
 	github.com/rs/zerolog v1.31.0
 	github.com/wisdom-oss/commonTypes v1.0.0
-	github.com/wisdom-oss/commonTypes/v2 v2.0.0
+	github.com/wisdom-oss/commonTypes/v2 v2.0.1
 	github.com/wisdom-oss/go-healthcheck v1.0.2
 	github.com/wisdom-oss/microservice-middlewares/v3 v3.0.1
 	github.com/wisdom-oss/microservice-middlewares/v4 v4.0.1
@@ -21,7 +22,6 @@ require (
 require (
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0 // indirect
-	github.com/getkin/kin-openapi v0.122.0 // indirect
 	github.com/go-openapi/jsonpointer v0.19.6 // indirect
 	github.com/go-openapi/swag v0.22.4 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
