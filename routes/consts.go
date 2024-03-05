@@ -1,5 +1,8 @@
 package routes
 
+// This file contains constants that are used over multiple handlers in the
+// microservice
+
 // DefaultPageSize sets the number of records returned by default from the
 // database
 const DefaultPageSize = 10000
