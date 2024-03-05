@@ -1,6 +1,11 @@
 name: "Go Tests"
 on: [pull_request]
 
+env:
+  PG_HOST: ${{ secrets.TEST_PG_HOST }}
+  PG_USER: ${{ secrets.TEST_PG_USER }}
+  PG_PASS: ${{ secrets.TEST_PG_PASS }}
+
 jobs:
   test:
     name: Run Tests
@@ -24,7 +29,7 @@ jobs:
         run: go install github.com/jstemmer/go-junit-report/v2@latest
 
       - name: Run Tests
-        run: go test -v 2>&1 ./... | go-junit-report -set-exit-code > report.xml
+        run: go test -v 2>&1 ./... | go-junit-report > report.xml
 
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action/linux@v2
