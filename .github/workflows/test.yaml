@@ -1,0 +1,33 @@
+name: "Go Tests"
+on: [pull_request]
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: self-hosted
+    permissions:
+      checks: write
+      pull-requests: write
+      issues: read
+      contents: read
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Initialize Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+
+      - name: Install go-junit-report
+        run: go install github.com/jstemmer/go-junit-report/v2@latest
+
+      - name: Run Tests
+        run: go test -v 2>&1 ./... | go-junit-report -set-exit-code > report.xml
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action/linux@v2
+        with:
+          files: |
+            report.xml
