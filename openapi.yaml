@@ -95,21 +95,54 @@ paths:
           schema:
             type: integer
             default: 1
-        - in: query
-          name: municipal
-          description: |
-            The official regional code (ARS) of the municipality/municipalities
-            that should be filtered for
-          required: false
-          schema:
-            default: null
-            type: array
-            items:
-              type: string
-              maxLength: 12
       responses:
         200:
           $ref: '#/components/responses/Usages'
+        413:
+          description: Page Size Too Large
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /{consumer-id}:
+    get:
+      summary: Get Usage Records for Consumer
+      parameters:
+        - in: path
+          name: consumer-id
+          description: The UUID assigned to the consumer
+          allowEmptyValue: true
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: page-size
+          description: The size of the response that is returned (to allow pagination)
+          allowEmptyValue: false
+          allowReserved: false
+          required: false
+          schema:
+            type: integer
+            default: 10000
+        - in: query
+          name: page
+          description: The page that shall be returned
+          allowEmptyValue: false
+          allowReserved: false
+          required: false
+          schema:
+            type: integer
+            default: 1
+      responses:
+        200:
+          $ref: '#/components/responses/Usages'
+        400:
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
         413:
           description: Page Size Too Large
           content:
