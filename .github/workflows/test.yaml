@@ -39,7 +39,10 @@ jobs:
         if: always()
 
       - id: generate-output
-        run: echo 'COMMENT=$(cat test-summary.md)' >> $GITHUB_OUTPUT
+        run: |
+          echo "COMMENT<<EOF" >> $GITHUB_OUTPUT
+          cat test-summary >> $GIHUB_OUTPUT
+          echo 'EOF' >> $GIHUB_OUTPUT
 
       - uses: actions/github-script@v7
         env:
