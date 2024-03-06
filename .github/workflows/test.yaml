@@ -40,11 +40,10 @@ jobs:
 
       - id: generate-output
         run: |
-          {
-            echo "COMMENT<<EOF"
-            cat test-summary.md
-            echo "EOF" 
-          } >> $GITHUB_OUTPUT
+            echo "RESULTS=<<EOF" >> $GITHUB_OUTPUT
+            echo "\n" >> $GITHUB_OUTPUT
+            cat test-summary.md >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
 
       - uses: actions/github-script@v7
         env:
