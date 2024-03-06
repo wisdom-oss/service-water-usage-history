@@ -41,7 +41,6 @@ jobs:
       - id: generate-output
         run: |
             echo "RESULTS=<<EOF" >> $GITHUB_OUTPUT
-            echo "\n" >> $GITHUB_OUTPUT
             cat test-summary.md >> $GITHUB_OUTPUT
             echo "EOF" >> $GITHUB_OUTPUT
 
