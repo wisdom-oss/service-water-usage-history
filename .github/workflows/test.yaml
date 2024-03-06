@@ -36,6 +36,7 @@ jobs:
         with:
           paths: "report.xml"
           output: test-summary.md
+          show: all
         if: always()
 
       - id: generate-output
