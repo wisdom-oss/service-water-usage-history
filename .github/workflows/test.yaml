@@ -1,5 +1,5 @@
 name: "Go Tests"
-on: [pull_request]
+on: [pull_request,push]
 
 env:
   PG_HOST: ${{ secrets.TESTS_PG_HOST }}
@@ -17,45 +17,4 @@ jobs:
       contents: read
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Initialize Go
-        uses: actions/setup-go@v5
-        with:
-          go-version-file: 'go.mod'
-
-      - name: Install go-junit-report
-        run: go install github.com/jstemmer/go-junit-report/v2@latest
-
-      - name: Run Tests
-        run: go test -v 2>&1 ./... | go-junit-report > report.xml
-
-      - name: Test Summary
-        uses: test-summary/action@v2
-        with:
-          paths: "report.xml"
-          output: test-summary.md
-          show: all
-        if: always()
-
-      - id: generate-output
-        run: |
-          comment=$(cat test-summary.md)
-          echo "RESULTS<<EOF" >> $GITHUB_OUTPUT
-          echo $comment >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-      - uses: actions/github-script@v7
-        env:
-          TEST_RESULT: ${{ steps.generate-output.outputs.results }}
-        with:
-          script: |
-              const {TEST_RESULT} = process.env
-            
-              github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: TEST_RESULT
-              })
+      - uses: wisdom-oss/actions/go-test@main
