@@ -1,4 +1,4 @@
-name: "CodeQL"
+name: "Code Quality"
 on:
   pull_request:
     branches:
@@ -9,8 +9,8 @@ on:
     - cron: "0 3 * * 0"
 
 jobs:
-  analyze:
-    name: Analyze
+  static-security:
+    name: Static Security and Code Analytics
     runs-on: 'ubuntu-latest'
     timeout-minutes: 600
     permissions:
@@ -39,3 +39,20 @@ jobs:
         uses: github/codeql-action/analyze@v3
         with:
           category: "/language:${{matrix.language}}"
+  test:
+    name: Run Tests
+    runs-on: self-hosted
+    permissions:
+      checks: write
+      pull-requests: write
+      issues: write
+      contents: write
+
+    steps:
+      - uses: wisdom-oss/actions/go-test@main
+        env:
+          PG_HOST: ${{ secrets.TESTS_PG_HOST }}
+          PG_USER: ${{ secrets.TESTS_PG_USER }}
+          PG_PASS: ${{ secrets.TESTS_PG_PASS }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
