@@ -1,0 +1,58 @@
+name: "Code Quality"
+on:
+  pull_request:
+    branches:
+      - main
+      - dev
+  push:
+  schedule:
+    - cron: "0 3 * * 0"
+
+jobs:
+  static-security:
+    name: Static Security and Code Analytics
+    runs-on: 'ubuntu-latest'
+    timeout-minutes: 600
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language:
+          - go
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-and-quality
+
+      - name: Build Service Executable
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{matrix.language}}"
+  test:
+    name: Run Tests
+    runs-on: self-hosted
+    permissions:
+      checks: write
+      pull-requests: write
+      issues: write
+      contents: write
+
+    steps:
+      - uses: wisdom-oss/actions/go-test@main
+        env:
+          PG_HOST: ${{ secrets.TESTS_PG_HOST }}
+          PG_USER: ${{ secrets.TESTS_PG_USER }}
+          PG_PASS: ${{ secrets.TESTS_PG_PASS }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
