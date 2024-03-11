@@ -6,7 +6,7 @@ require (
 	github.com/getkin/kin-openapi v0.122.0
 	github.com/go-chi/chi/v5 v5.0.12
 	github.com/go-chi/httplog v0.3.2
-	github.com/jackc/pgx/v5 v5.5.3
+	github.com/jackc/pgx/v5 v5.5.5
 	github.com/joho/godotenv v1.5.1
 	github.com/qustavo/dotsql v1.2.0
 	github.com/rs/zerolog v1.31.0
