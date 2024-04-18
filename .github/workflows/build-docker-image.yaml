@@ -28,4 +28,4 @@ jobs:
     steps:
       - uses: wisdom-oss/actions/docker-build@main
         with:
-          registry-input: ${{ secrets.GITHUB_TOKEN }}
+          registry-password: ${{ secrets.GITHUB_TOKEN }}
