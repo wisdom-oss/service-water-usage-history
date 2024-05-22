@@ -13,7 +13,8 @@ import (
 	"github.com/go-chi/httplog"
 	"github.com/rs/zerolog/log"
 	healthcheckServer "github.com/wisdom-oss/go-healthcheck/server"
-	wisdomMiddleware "github.com/wisdom-oss/microservice-middlewares/v4"
+	errorMiddleware "github.com/wisdom-oss/microservice-middlewares/v5/error"
+	securityMiddleware "github.com/wisdom-oss/microservice-middlewares/v5/security"
 
 	"microservice/routes"
 
@@ -45,9 +46,9 @@ func main() {
 	router.Use(httplog.Handler(l))
 	router.Use(chiMiddleware.RequestID)
 	router.Use(chiMiddleware.RealIP)
-	router.Use(wisdomMiddleware.ErrorHandler)
-	// now add the authorization middleware to the router
-	router.Use(wisdomMiddleware.Authorization(globals.ServiceName))
+	router.Use(errorMiddleware.Handler)
+	router.Use(securityMiddleware.ValidateServiceJWT)
+	router.NotFound(errorMiddleware.NotFoundError)
 	// now mount the admin router
 	router.HandleFunc("/", routes.BasicHandler)
 	router.HandleFunc("/internal-error", routes.BasicWithErrorHandling)
