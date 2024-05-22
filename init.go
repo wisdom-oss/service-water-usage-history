@@ -8,7 +8,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	wisdomType "github.com/wisdom-oss/commonTypes/v2"
 
-	"github.com/joho/godotenv"
+	_ "github.com/joho/godotenv/autoload"
 
 	"github.com/qustavo/dotsql"
 	"github.com/rs/zerolog"
@@ -23,11 +23,6 @@ import (
 // init is executed at every startup of the microservice and is always executed
 // before main
 func init() {
-	// load the variables found in the .env file into the process environment
-	err := godotenv.Load()
-	if err != nil {
-		log.Debug().Msg("no .env files found")
-	}
 	configureLogger()
 	loadServiceConfiguration()
 	connectDatabase()
