@@ -2,7 +2,6 @@
   "required": ["PG_HOST", "PG_USER", "PG_PASS"],
   "optional": {
     "LISTEN_PORT": "8000",
-    "PG_PORT": "5432",
-    "QUERY_FILE_LOCATION": "./queries.sql"
+    "PG_PORT": "5432"
   }
 }
