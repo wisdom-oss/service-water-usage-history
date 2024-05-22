@@ -17,9 +17,19 @@ import (
 // To achieve the behavior in docker containers, supply the build tag "docker"
 // and the Docker defaults are used
 
-// DefaultMiddlewares contains the middlewares used per default in this service
-var DefaultMiddlewares = []func(next http.Handler) http.Handler{
+// Middlewares contains the middlewares used per default in this service.
+// To disable single middlewares, please remove the line in which this array
+// is used and add the middlewares that shall be used manually to the router
+var Middlewares = []func(next http.Handler) http.Handler{
 	chiMiddleware.RequestID,
 	chiMiddleware.RealIP,
 	errorMiddleware.Handler,
 }
+
+// EnvironmentFilePath contains the default file path under which the
+// environment configuration file is stored
+const EnvironmentFilePath = "./resources/environment.json"
+
+// QueryFilePath contains the default file path under which the
+// sql queries are stored
+const QueryFilePath = "./resources/queries.sql"
