@@ -94,16 +94,13 @@ github.com/stretchr/testify v1.9.0 h1:HtqpIVDClZ4nwg75+f6Lvsy/wHu+3BoSGCbBAcpTsT
 github.com/stretchr/testify v1.9.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
 github.com/ugorji/go/codec v1.2.7 h1:YPXUKf7fYbp/y8xloBqZOw2qaVggbfwMlI8WM3wZUJ0=
 github.com/ugorji/go/codec v1.2.7/go.mod h1:WGN1fab3R1fzQlVQTkfxVtIBhWDRqOviHU95kRgeqEY=
-github.com/wisdom-oss/commonTypes v1.0.0 h1:+KuD3l+g1P6K2DwyC0nqo0RrpZdKiAoMLOBhQIce7WQ=
-github.com/wisdom-oss/commonTypes v1.0.0/go.mod h1:Q7X33dplhIdZxIbJRyTLhk9ojrDN6chq9D5xExToUEo=
 github.com/wisdom-oss/commonTypes/v2 v2.0.1 h1:TWW4j+MsXca9CgiN0INFi05os3rSzSNTQJhBfwXx0cQ=
 github.com/wisdom-oss/commonTypes/v2 v2.0.1/go.mod h1:bJJyW1qbkihERIITv2ZO5eyPifMD4sCGeEXHQkpDglo=
 github.com/wisdom-oss/go-healthcheck v1.0.2 h1:GB6XFXo1mO9GDcQwXrK6edH9x1qGxZB0JcL4y+tSYh4=
 github.com/wisdom-oss/go-healthcheck v1.0.2/go.mod h1:H2bLbrxhptz7EuK3SaW4HPVW7VF9C+UTeeWs7aLB5GE=
-github.com/wisdom-oss/microservice-middlewares/v4 v4.0.1 h1:GYRKufF2w4IfxRW1qjnpjcFyJpWt21TRMfkSCuXxu/w=
-github.com/wisdom-oss/microservice-middlewares/v4 v4.0.1/go.mod h1:XHZY6/PCJy8YN/VjjP7+MUGFSePupyT968s9hzdU94Q=
 github.com/wisdom-oss/microservice-middlewares/v5 v5.1.1 h1:c8kmSP70D7TX35P002sjAkSkF5EikBausNCZXbjVeUg=
 github.com/wisdom-oss/microservice-middlewares/v5 v5.1.1/go.mod h1:TfHxxd8ckJue6w8ha+jvF2qucOf66zVv89u3SQR2BHs=
+github.com/wisdom-oss/microservice-middlewares/v5 v5.1.2/go.mod h1:TfHxxd8ckJue6w8ha+jvF2qucOf66zVv89u3SQR2BHs=
 golang.org/x/crypto v0.23.0 h1:dIJU/v2J8Mdglj/8rJ6UUOM3Zc9zLZxVZwwxMooUSAI=
 golang.org/x/crypto v0.23.0/go.mod h1:CKFgDieR+mRhux2Lsu27y0fO304Db0wZe70UKqHu0v8=
 golang.org/x/sync v0.7.0 h1:YsImfSBoP9QPYL0xyKJPq0gcaJdG3rInoqxTWbfQu9M=
