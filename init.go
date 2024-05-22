@@ -15,6 +15,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/rs/zerolog/pkgerrors"
 
+	"microservice/config"
 	"microservice/globals"
 
 	_ "github.com/wisdom-oss/go-healthcheck/client"
@@ -66,7 +67,11 @@ func configureLogger() {
 
 // loadServiceConfiguration handles loading the `environment.json` file which
 // describes which environment variables are needed for the service to function
-// and what variables are optional and their default values
+// and what variables are optional and their default values.
+// The default loading location is set by the config.EnvironmentFilePath
+// constant.
+// This constant may change depending on the build tag used during the compile
+// time
 func loadServiceConfiguration() {
 	log.Info().Msg("loading service configuration from environment")
 	// now check if the default location for the environment configuration
@@ -74,7 +79,7 @@ func loadServiceConfiguration() {
 	location, locationChanged := os.LookupEnv("ENV_CONFIG_LOCATION")
 	if !locationChanged {
 		// since the location has not changed, set the default value
-		location = "./environment.json"
+		location = config.EnvironmentFilePath
 		log.Debug().Msg("location for environment config not changed")
 	}
 	log.Debug().Str("path", location).Msg("loading environment requirements file")
@@ -102,11 +107,11 @@ func connectDatabase() {
 		globals.Environment["PG_HOST"], globals.Environment["PG_PORT"])
 
 	var err error
-	config, err := pgxpool.ParseConfig(address)
+	pgxConfig, err := pgxpool.ParseConfig(address)
 	if err != nil {
 		log.Fatal().Err(err).Msg("unable to create base configuration for connection pool")
 	}
-	globals.Db, err = pgxpool.NewWithConfig(context.Background(), config)
+	globals.Db, err = pgxpool.NewWithConfig(context.Background(), pgxConfig)
 	if err != nil {
 		log.Fatal().Err(err).Msg("unable to create database connection pool")
 	}
@@ -118,15 +123,22 @@ func connectDatabase() {
 }
 
 // loadPreparedQueries loads the prepared SQL queries from a file specified by
-// the QUERY_FILE_LOCATION environment variable.
-// It initializes the SqlQueries variable with the loaded queries.
+// the QUERY_FILE_LOCATION environment variable or the config.QueryFilePath
+// constant.
+// It initializes the globals.SqlQueries variable with the loaded queries.
 // If there is an error loading the queries, it logs a fatal error and the
 // program terminates.
 // This function is typically called during the startup of the microservice.
 func loadPreparedQueries() {
 	log.Info().Msg("loading prepared sql queries")
 	var err error
-	globals.SqlQueries, err = dotsql.LoadFromFile(globals.Environment["QUERY_FILE_LOCATION"])
+	location, locationChanged := os.LookupEnv("QUERY_FILE_LOCATION")
+	if !locationChanged {
+		// since the location has not changed, set the default value
+		location = config.QueryFilePath
+		log.Debug().Str("default", config.QueryFilePath).Msg("location for sql query file has not been changed")
+	}
+	globals.SqlQueries, err = dotsql.LoadFromFile(location)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to load prepared queries")
 	}
