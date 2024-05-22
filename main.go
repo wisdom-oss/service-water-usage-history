@@ -9,13 +9,12 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
-	chiMiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/httplog"
 	"github.com/rs/zerolog/log"
 	healthcheckServer "github.com/wisdom-oss/go-healthcheck/server"
 	errorMiddleware "github.com/wisdom-oss/microservice-middlewares/v5/error"
-	securityMiddleware "github.com/wisdom-oss/microservice-middlewares/v5/security"
 
+	"microservice/config"
 	"microservice/routes"
 
 	"microservice/globals"
@@ -44,10 +43,7 @@ func main() {
 	router := chi.NewRouter()
 	// add some middlewares to the router to allow identifying requests
 	router.Use(httplog.Handler(l))
-	router.Use(chiMiddleware.RequestID)
-	router.Use(chiMiddleware.RealIP)
-	router.Use(errorMiddleware.Handler)
-	router.Use(securityMiddleware.ValidateServiceJWT)
+	router.Use(config.DefaultMiddlewares...)
 	router.NotFound(errorMiddleware.NotFoundError)
 	// now mount the admin router
 	router.HandleFunc("/", routes.BasicHandler)
