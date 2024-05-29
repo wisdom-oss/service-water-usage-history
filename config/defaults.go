@@ -4,9 +4,13 @@ package config
 
 import (
 	"net/http"
+	"time"
 
 	chiMiddleware "github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/httplog"
 	errorMiddleware "github.com/wisdom-oss/microservice-middlewares/v5/error"
+
+	"microservice/globals"
 )
 
 // This file contains default paths that are used inside the service to load
@@ -33,3 +37,16 @@ const EnvironmentFilePath = "./resources/environment.json"
 // QueryFilePath contains the default file path under which the
 // sql queries are stored
 const QueryFilePath = "./resources/queries.sql"
+
+// httpLogger generates a new logger which is configured to use a plain text
+// format while logging
+func httpLogger() func(next http.Handler) http.Handler {
+	l := httplog.NewLogger(globals.ServiceName)
+	httplog.Configure(httplog.Options{
+		JSON:            false,
+		Concise:         true,
+		TimeFieldFormat: time.RFC3339,
+	})
+	return httplog.Handler(l)
+
+}

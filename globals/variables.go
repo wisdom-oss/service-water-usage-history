@@ -9,10 +9,7 @@ import (
 // This file contains globally shared variables (e.g., service name, sql queries)
 
 // ServiceName contains the service's identifying name.
-// It is automatically loaded from the service-name file in the repository.
-//
-//go:embed service-name
-var ServiceName string
+const ServiceName = "template" //TODO: CHANGE THIS VALUE
 
 // SqlQueries contains the prepared sql queries from the resources folder
 var SqlQueries *dotsql.DotSql

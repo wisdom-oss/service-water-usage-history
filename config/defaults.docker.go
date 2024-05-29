@@ -4,8 +4,14 @@ package config
 
 import (
 	"net/http"
+	"time"
 
 	chiMiddleware "github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/httplog"
+	errorMiddleware "github.com/wisdom-oss/microservice-middlewares/v5/error"
+	securityMiddleware "github.com/wisdom-oss/microservice-middlewares/v5/security"
+
+	"github.com/wisdom-oss/service-water-rights/globals"
 )
 
 // This file contains default paths that are used inside the service to load
@@ -20,6 +26,7 @@ import (
 // To disable single middlewares, please remove the line in which this array
 // is used and add the middlewares that shall be used manually to the router
 var Middlewares = []func(next http.Handler) http.Handler{
+	httpLogger(),
 	chiMiddleware.RequestID,
 	chiMiddleware.RealIP,
 	errorMiddleware.Handler,
@@ -33,3 +40,18 @@ const EnvironmentFilePath = "./environment.json"
 // QueryFilePath contains the default file path under which the
 // sql queries are stored
 const QueryFilePath = "./queries.sql"
+
+// ListenAddress sets the host on which the microservice listens to incoming
+// requests
+const ListenAddress = ""
+
+func httpLogger() func(next http.Handler) http.Handler {
+	l := httplog.NewLogger(globals.ServiceName)
+	httplog.Configure(httplog.Options{
+		JSON:            true,
+		Concise:         true,
+		TimeFieldFormat: time.RFC3339,
+	})
+	return httplog.Handler(l)
+
+}
