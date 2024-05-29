@@ -6,10 +6,10 @@ require (
 	github.com/getkin/kin-openapi v0.124.0
 	github.com/go-chi/chi/v5 v5.0.12
 	github.com/go-chi/httplog v0.3.2
-	github.com/jackc/pgx/v5 v5.5.5
+	github.com/jackc/pgx/v5 v5.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/qustavo/dotsql v1.2.0
-	github.com/rs/zerolog v1.32.0
+	github.com/rs/zerolog v1.33.0
 	github.com/wisdom-oss/commonTypes/v2 v2.0.1
 	github.com/wisdom-oss/go-healthcheck v1.0.2
 	github.com/wisdom-oss/microservice-middlewares/v5 v5.1.2
