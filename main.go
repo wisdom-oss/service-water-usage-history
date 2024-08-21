@@ -9,12 +9,13 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
-	chiMiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/httplog"
 	"github.com/rs/zerolog/log"
+	wisdomMiddleware "github.com/wisdom-oss/common-go/middleware"
+	"github.com/wisdom-oss/common-go/types"
 	healthcheckServer "github.com/wisdom-oss/go-healthcheck/server"
-	wisdomMiddleware "github.com/wisdom-oss/microservice-middlewares/v4"
 
+	"microservice/config"
 	"microservice/routes"
 
 	"microservice/globals"
@@ -43,19 +44,20 @@ func main() {
 	router := chi.NewRouter()
 	// add some middlewares to the router to allow identifying requests
 	router.Use(httplog.Handler(l))
-	router.Use(chiMiddleware.RequestID)
-	router.Use(chiMiddleware.RealIP)
-	router.Use(wisdomMiddleware.ErrorHandler)
-	// now add the authorization middleware to the router
-	router.Use(wisdomMiddleware.Authorization(globals.ServiceName))
-	// now mount the admin router
+	router.Use(config.Middlewares()...)
+	router.NotFound(wisdomMiddleware.NotFoundError)
+	// now mount the routes as some examples
 	router.HandleFunc("/", routes.BasicHandler)
 	router.HandleFunc("/internal-error", routes.BasicWithErrorHandling)
+	router.With(wisdomMiddleware.RequireScope(globals.ServiceName, types.ScopeRead)).HandleFunc("/read", routes.BasicHandler)
+	router.With(wisdomMiddleware.RequireScope(globals.ServiceName, types.ScopeWrite)).HandleFunc("/write", routes.BasicHandler)
+	router.With(wisdomMiddleware.RequireScope(globals.ServiceName, types.ScopeDelete)).HandleFunc("/delete", routes.BasicHandler)
+	router.With(wisdomMiddleware.RequireScope(globals.ServiceName, types.ScopeAdmin)).HandleFunc("/admin", routes.BasicHandler)
 
 	// now boot up the service
 	// Configure the HTTP server
 	server := &http.Server{
-		Addr:         fmt.Sprintf("0.0.0.0:%s", globals.Environment["LISTEN_PORT"]),
+		Addr:         fmt.Sprintf("0.0.0.0:%s", "8000"),
 		WriteTimeout: time.Second * 600,
 		ReadTimeout:  time.Second * 600,
 		IdleTimeout:  time.Second * 600,

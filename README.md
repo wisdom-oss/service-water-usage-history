@@ -1,80 +1,125 @@
+<!-- TODO: REMOVE BLOCK AFTER READING README -->
+> [!CAUTION]
+> This repository either is the template for new microservices or this
+> repository has been generated from the template repository.
+>
+> Please read the Architecture section thoroughly to minimize risks of data
+> leaking and unauthorized access.
+
 <div align="center">
 <img height="150px" src="https://raw.githubusercontent.com/wisdom-oss/brand/main/svg/standalone_color.svg">
+
+<!-- TODO: Change Information here -->
+
 <h1>Microservice Template/Example</h1>
 <h3>service-example</h3>
 <p>📐 A minimal working example for microservices in the WISdoM Architecture</p>
+
+<!-- TODO: Change URL here to point to correct repository -->
 <img src="https://img.shields.io/github/go-mod/go-version/wisdom-oss/microservice-template?style=for-the-badge" alt="Go Lang Version"/>
 <a href="openapi.yaml">
 <img src="https://img.shields.io/badge/Schema%20Version-3.0.0-6BA539?style=for-the-badge&logo=OpenAPI%20Initiative" alt="Open
 API Schema Version"/></a>
 </div>
 
-## Using the template
-1. Download this archive as `.zip` or `.tar.gz` (whatever you prefer)
+<!-- TODO: Replace README.md contents with correct description -->
 
-2. Extract the downloaded archive to a directory of your choice and remove the
-    parent folders which may have been created during the download
 
-3. Make sure that your folder now contains at least the following file structure:
-   ```
-   ├── globals
-   │  ├── connections.go      (contains globally available connections)
-   │  ├── variables.go        (contains globally available variables)
-   ├── resources
-   │  ├── authConfig.json     (contains auth config)
-   │  ├── environment.json    (contains the environment setup)
-   │  ├── errors.json         (contains http errors)
-   │  ├── queries.sql         (contains sql queries for the service)
-   ├── routes
-   │  ├── templates.go        (contains three template routes)
-   ├── .gitignore
-   ├── init.go                (contains code used during startup)
-   ├── template-service.go    (contains the bootstrapping code for the service)
-   ├── go.mod                 (contains the dependencies of the service)
-   ├── go.sum                 (is the lockfile for the dependencies)
-   ```
-   
-4. **Important** Change the service name
+ 
+## Architecture
+The template repository contains the basic code fragments to configure and
+start up a new microservice.
+It is delivered with two basic routes showcasing the features of the template
+and the current packages included it.
 
-    To change the service name, you need to edit the file `globals/variables.go`
-    which should contain the following line
-    
-    ```go 
-    const ServiceName = "template-service"
-    ```
-   
-    This line needs to be changed to your service name. This constant is
-    used in logs and error handling to identify the service.
-   
-5. Initialize a Git Repository with `main` as default branch
+This section explains some files and their function within the service to allow
+a better understanding of the service
 
-    ```shell
-   git init -b main
-    ```
-6. Add all files to the repository
+### [`init.go`](init.go) — The service initialization
+The `init.go` file contains the code required to connect the service to the
+PostgreSQL database used in the WISdoM system. It furthermore handles the
+automatic configuration of the environment variables by automatically loading
+environment variables stored in a `.env` file.
 
-    ```shell
-   git add -A
-    ```
-   
-7. Commit the template to the repository
+> [!CAUTION]
+> Never commit a file containing secrets like usernames, password, 
+> client _secrets_, client ids, connection urls that contain these values.
 
-    ```shell
-   git commit -m "loading wisdom-oss/microservice-template"
-   ```
-   
-8. Set up a remote origin for the repository
+### [`main.go`](main.go) — Main Application
+The `main.go` file contains the main part of the application. 
+In this case it is the setup of the healthcheck and the router used to manage
+the different routes and handlers.
 
-    ```shell
-   git remote add origin <your-remote-url>
-    ```
-   
-9. Push the repository to the remote origin
 
-    ```shell
-   git push origin main
-    ```
-   
-10. :tada: You are now able to develop your new microservice
+### [`globals`](globals) — Globally available variables and connections
+The package `globals` manages some variables that are used at places which would
+require importing each other resulting in a circular import.
 
-11. Change the README to the contents you desire in here
+#### [`variables.go`](globals/variables.go) — Variables
+The `variables.go` file contains globally used variables that are used at
+multiple places in different packages.
+Furthermore, the `variables.go` file uses the [embedding of values] during the 
+build of the executable.
+
+[embedding of values]: https://pkg.go.dev/embed
+
+> [!IMPORTANT]
+> To set the service's name and to allow a first build, please write the name of
+> the service into the `service-name.sample` file and rename this file to
+> `service-name`.
+> Otherwise, the build process will fail!
+
+#### [`connections.go`](globals/connections.go) — Connections
+The `connections.go` file contains globally used variables that are used at
+multiple places throughout the code.
+
+### [`resources`](resources) — Resources
+The `resources` folder contains resources needed for the service.
+In its bare state, the service requires the listed files
+
+#### [`environment.json`](resources/environment.json) — Environment Configuration
+The `environment.json` file contains information about the required and
+optional environment variables consumed by the service.
+For optional variables you need to specify a default value which is populated
+into the `globals.Environment` variable.
+The optional values may only be of the type `string` as this reflects the
+behavior of the `os.LookupEnv` function.
+
+
+#### [`queries.sql`](resources/queries.sql) — SQL Queries
+The `queries.sql` file contains all sql queries required for your service.
+The queries are loaded during the initialization of the service and are managed
+by the [`dotsql` package]
+
+[`dotsql` package]: https://pkg.go.dev/github.com/qustavo/dotsql
+
+### [`config`](config) — Default configurations
+The `config` folder contains Go files which set default values for the 
+executable as constants or other variables.
+The different files are used in dependency of the [build tags] supplied during
+the compilation of the service.
+
+[build tags]: https://pkg.go.dev/cmd/go#hdr-Build_constraints
+
+#### [`defaults.go`](config/defaults.go) - Local Development
+The `defaults.go` file is always used if the build tag `docker` is not supplied
+to the compiler.
+This default configuration automatically disables the authentication and
+authorization measures preconfigured to allow easy local development.
+It also sets the location of some required files to the `resources` folder to
+match the repository layout.
+
+#### [`defaults.docker.go`](config/defaults.docker.go) - Deployment
+> [!NOTE]
+> This build tag is pre-set in the [Dockerfile](Dockerfile). Therefore, no
+> intervention is required.
+
+The `defaults.docker.go` file is used if the build tag `docker` has been 
+supplied to the compiler.
+This configuration automatically enables the authentication and
+authorization measures preconfigured to secure the service in its deployed
+state.
+It also sets the location of some required files to lay directly next to the
+executable to allow a flatter folder structure in the generated docker
+image.
+
