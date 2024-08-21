@@ -8,10 +8,9 @@ import (
 
 	chiMiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/httplog"
-	errorMiddleware "github.com/wisdom-oss/microservice-middlewares/v5/error"
-	securityMiddleware "github.com/wisdom-oss/microservice-middlewares/v5/security"
+	"github.com/wisdom-oss/common-go/middleware"
 
-	"github.com/wisdom-oss/service-water-rights/globals"
+	"microservice/globals"
 )
 
 // This file contains default paths that are used inside the service to load
@@ -25,17 +24,19 @@ import (
 // Middlewares contains the middlewares used per default in this service.
 // To disable single middlewares, please remove the line in which this array
 // is used and add the middlewares that shall be used manually to the router
-var Middlewares = []func(next http.Handler) http.Handler{
+var middlewares = []func(next http.Handler) http.Handler{
 	httpLogger(),
 	chiMiddleware.RequestID,
 	chiMiddleware.RealIP,
-	errorMiddleware.Handler,
-	securityMiddleware.ValidateServiceJWT,
+	middleware.ErrorHandler,
 }
 
-// EnvironmentFilePath contains the default file path under which the
-// environment configuration file is stored
-const EnvironmentFilePath = "./environment.json"
+func Middlewares() []func(http.Handler) http.Handler {
+	validator := middleware.JWTValidator{}
+	_ = validator.Configure("api-gateway")
+	middlewares := append(middlewares, validator.Handler)
+	return middlewares
+}
 
 // QueryFilePath contains the default file path under which the
 // sql queries are stored
