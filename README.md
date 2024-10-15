@@ -31,7 +31,33 @@ the project.
 
 [`gin-gonic/gin`]: https://github.com/gin-gonic/gin
 
+## Authorization
+The microservice automatically disables the authorization in local development
+scenarios to reduce the hassle with needing a living access token for each
+request.
+However, the authorization is enabled when building the Docker Image as it
+uses the `docker` build tag which triggers the inclusion of
+`internal/config/docker.go` and the exclusion of `internal/config/debug.go` into
+the binary.
+
+> [!TIP]
+> To test the authorization you need to manually add the build tag to your build
+> command `-tags docker` and populate the `OIDC_AUTHORITY` environment variable
+> which should contain the issuer of the access tokens used in your WISdoM
+> platform, otherwise the startup of the microservice will fail or you may be
+> unable to access the microservice
+
 ## Using the database
+> [!IMPORTANT]
+> You need to set the following environment variables for a successful 
+> connection to the database:
+>   - `PGUSER`
+>   - `PGPASSWORD`
+>   - `PGHOST`
+>   - `PGDATABASE`
+> and optionally the following variables
+>   - `PGPORT`
+
 As the database is automatically connected, you don't need to handle this by
 yourself.
 To use the database in your code either request a single connection from the
