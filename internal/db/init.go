@@ -43,7 +43,7 @@ func init() {
 		}
 		instances = append(instances, instance)
 	}
-	SqlQueries = dotsql.Merge(instances...)
+	Queries = dotsql.Merge(instances...)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to load prepared queries")
 	}
