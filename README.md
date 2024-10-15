@@ -55,6 +55,7 @@ the binary.
 >   - `PGPASSWORD`
 >   - `PGHOST`
 >   - `PGDATABASE`
+>
 > and optionally the following variables
 >   - `PGPORT`
 
