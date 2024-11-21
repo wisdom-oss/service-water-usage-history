@@ -2,18 +2,19 @@ package main
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"os"
 	"os/signal"
+	"syscall"
+	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
 	healthcheckServer "github.com/wisdom-oss/go-healthcheck/server"
 
 	"microservice/internal"
 	"microservice/internal/config"
 	"microservice/internal/db"
-	"microservice/internal/errors"
 	"microservice/routes"
 )
 
@@ -36,36 +37,38 @@ func main() {
 	}
 	go hcServer.Run()
 
-	/* NEW HTTP BACKEND */
-	r := gin.New()
-	r.HandleMethodNotAllowed = true
-	r.Use(config.Middlewares()...)
-	r.NoMethod(func(c *gin.Context) {
-		c.AbortWithStatusJSON(http.StatusMethodNotAllowed, errors.MethodNotAllowed)
-	})
-	r.NoRoute(func(c *gin.Context) {
-		c.AbortWithStatusJSON(http.StatusNotFound, errors.NotFound)
-
-	})
+	r := config.PrepareRouter()
 	r.GET("/", routes.BasicHandler)
 
-	l.Info().Msg("finished service configuration")
+	// create http server
+	server := &http.Server{
+		Addr:    config.ListenAddress,
+		Handler: r,
+	}
+
 	l.Info().Msg("starting http server")
 
 	// Start the server and log errors that happen while running it
 	go func() {
-		if err := r.Run(config.ListenAddress); err != nil {
+		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 			l.Fatal().Err(err).Msg("An error occurred while starting the http server")
 		}
 	}()
 
-	// Set up the signal handling to allow the server to shut down gracefully
-
-	cancelSignal := make(chan os.Signal, 1)
-	signal.Notify(cancelSignal, os.Interrupt)
+	// Set up some the signal handling to allow the server to shut down gracefully
+	shutdownSignal := make(chan os.Signal, 1)
+	signal.Notify(shutdownSignal, syscall.SIGINT, syscall.SIGTERM)
 
 	// Block further code execution until the shutdown signal was received
 	l.Info().Msg("server ready to accept connections")
-	<-cancelSignal
+	<-shutdownSignal
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	err = server.Shutdown(ctx)
+	if err != nil {
+		l.Fatal().Err(err).Msg("An error occurred while shutting down http server")
+	}
 
 }

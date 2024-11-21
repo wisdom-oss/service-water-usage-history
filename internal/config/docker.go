@@ -9,15 +9,16 @@
 package config
 
 import (
+	"net/http"
 	"os"
 
+	"github.com/gin-contrib/logger"
+	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 	"github.com/wisdom-oss/common-go/v2/middleware"
+	"github.com/wisdom-oss/common-go/v2/types"
 )
-import "github.com/gin-contrib/logger"
-import "github.com/gin-contrib/requestid"
 
 const ListenAddress = "0.0.0.0:8000"
 
@@ -47,9 +48,35 @@ func Middlewares() []gin.HandlerFunc {
 	jwtValidator := middleware.JWTValidator{}
 	err := jwtValidator.DiscoverAndConfigure(oidcIssuer)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to discover and configure JWT Validation")
+		panic(err)
 	}
 
 	middlewares = append(middlewares, jwtValidator.GinHandler)
 	return middlewares
+}
+
+func PrepareRouter() *gin.Engine {
+	router := gin.New()
+	router.ForwardedByClientIP = true
+	_ = router.SetTrustedProxies([]string{"172.16.31.4"})
+	router.Use(Middlewares()...)
+
+	router.NoMethod(func(c *gin.Context) {
+		c.AbortWithStatusJSON(http.StatusMethodNotAllowed, types.ServiceError{
+			Type:   "https://www.rfc-editor.org/rfc/rfc9110.html#section-15.5.6",
+			Status: http.StatusMethodNotAllowed,
+			Title:  "Method Not Allowed",
+			Detail: "The used HTTP method is not allowed on this route. Please check the documentation and your request",
+		})
+	})
+	router.NoRoute(func(c *gin.Context) {
+		c.AbortWithStatusJSON(http.StatusNotFound, types.ServiceError{
+			Type:   "https://www.rfc-editor.org/rfc/rfc9110.html#section-15.5.5",
+			Status: http.StatusNotFound,
+			Title:  "Route Not Found",
+			Detail: "The requested path does not exist in this microservice. Please check the documentation and your request",
+		})
+	})
+
+	return router
 }
