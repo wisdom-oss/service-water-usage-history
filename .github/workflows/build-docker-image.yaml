@@ -1,17 +1,15 @@
 name: Create/Release Docker Image
 on:
+  workflow_dispatch:
   push:
-    branches: [ "main", "stable", "dev" ]
-    # Publish semver tags as releases.
+    branches: [ "main", "feature/" ]
     tags: [ 'v*.*.*' ]
   pull_request:
     branches: [ "main" ]
 
 env:
-  # Use docker.io for Docker Hub if empty
   REGISTRY: ghcr.io
-  # github.repository as <account>/<repo>
-  IMAGE_NAME: # TODO: Set image name
+  IMAGE_NAME: ${{ github.repository }}
 
 
 jobs:
@@ -21,11 +19,15 @@ jobs:
     permissions:
       contents: read
       packages: write
-      # This is used to complete the identity challenge
-      # with sigstore/fulcio when running outside of PRs.
       id-token: write
 
     steps:
       - uses: wisdom-oss/actions/docker-build@main
         with:
           registry-password: ${{ secrets.GITHUB_TOKEN }}
+          cache-key: ${{ runner.os }}-cache-${{ hashFiles('**/go.sum') }}
+          cache-path: go-mod-build
+          cache-map: |
+            {
+              "go-mod-build": "/root/.cache/go-build"
+            }
