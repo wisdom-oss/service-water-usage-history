@@ -29,7 +29,7 @@ jobs:
       id-token: write
 
     steps:
-      - uses: wisdom-oss/actions/docker-build/multiplatform/build.yml@main
+      - uses: wisdom-oss/actions/docker-build/multiplatform/build@main
         name: 
         with:
           registry-password: ${{ secrets.GITHUB_TOKEN }}
@@ -45,7 +45,7 @@ jobs:
     needs:
       - build
     steps:
-      - uses: wisdom-oss/actions/docker-build/multiplatform/merge.yml@main
+      - uses: wisdom-oss/actions/docker-build/multiplatform/merge@main
         name: 
         with:
           registry-password: ${{ secrets.GITHUB_TOKEN }}
