@@ -29,11 +29,17 @@ jobs:
       id-token: write
 
     steps:
+
+      - id: checkout
+        name: Checkout Build Sources
+        uses: actions/checkout@v4
+
       - uses: wisdom-oss/actions/docker-build/multiplatform/build@main
         name: 
         with:
           registry-password: ${{ secrets.GITHUB_TOKEN }}
           cache-key: ${{ runner.os }}-cache-${{ hashFiles('**/go.sum') }}
+          target-platform: ${{ matrix.platforms }}
           cache-path: go-mod-build
           cache-map: |
             {
