@@ -11,12 +11,14 @@ package config
 import (
 	"net/http"
 
-	"github.com/gin-contrib/logger"
-	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 	"github.com/wisdom-oss/common-go/v2/middleware"
-	"github.com/wisdom-oss/common-go/v2/types"
+
+	apiErrors "microservice/internal/errors"
+
+	"github.com/gin-contrib/logger"
+	"github.com/gin-contrib/requestid"
 )
 
 const ListenAddress = "127.0.0.1:8000"
@@ -41,27 +43,15 @@ func Middlewares() []gin.HandlerFunc {
 
 func PrepareRouter() *gin.Engine {
 	router := gin.New()
-	router.ForwardedByClientIP = true
 	router.HandleMethodNotAllowed = true
-	_ = router.SetTrustedProxies(nil)
 	router.Use(Middlewares()...)
 
 	router.NoMethod(func(c *gin.Context) {
-		c.AbortWithStatusJSON(http.StatusMethodNotAllowed, types.ServiceError{
-			Type:   "https://www.rfc-editor.org/rfc/rfc9110.html#section-15.5.6",
-			Status: http.StatusMethodNotAllowed,
-			Title:  "Method Not Allowed",
-			Detail: "The used HTTP method is not allowed on this route. Please check the documentation and your request",
-		})
+		c.AbortWithStatusJSON(http.StatusMethodNotAllowed, apiErrors.MethodNotAllowed)
 	})
-
 	router.NoRoute(func(c *gin.Context) {
-		c.AbortWithStatusJSON(http.StatusNotFound, types.ServiceError{
-			Type:   "https://www.rfc-editor.org/rfc/rfc9110.html#section-15.5.5",
-			Status: http.StatusNotFound,
-			Title:  "Route Not Found",
-			Detail: "The requested path does not exist in this microservice. Please check the documentation and your request",
-		})
+		c.AbortWithStatusJSON(http.StatusNotFound, apiErrors.NotFound)
+
 	})
 
 	return router
