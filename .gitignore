@@ -4,6 +4,11 @@
 # allow the gitignore file itself
 !.gitignore
 
+# allow the .vscode folder to set recommended plugins and configuration
+# options
+!.vscode
+!.vscode/*.json
+
 # allow all files in the static_docs directory
 !static_docs
 !static_docs/**
@@ -29,7 +34,7 @@
 !resources/**
 
 # allow all .go files
-!*.go
+!**.go
 !go.mod
 !go.sum
 
@@ -37,5 +42,4 @@
 !globals/
 !routes/
 !types/
-!internal
-!internal/**
+!internal/
