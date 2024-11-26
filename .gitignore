@@ -42,4 +42,5 @@
 !globals/
 !routes/
 !types/
-!internal/
+!internal
+!internal/**
