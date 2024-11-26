@@ -1,0 +1,11 @@
+{
+    "files.exclude": {
+        ".hc-socket": true
+    },
+    "gopls": {
+        
+        "ui.semanticTokens": true
+    },
+    "Prettier-SQL.SQLFlavourOverride": "postgresql",
+    "editor.suggest.showWords": false
+}
