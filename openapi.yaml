@@ -1,11 +1,11 @@
 openapi: 3.0.3
 info:
-  # TODO: Change Information
-  title: Microservice Template
-  description: Microservice Template
+  title: Water Usage History
+  description: |
+    This microservice provides access to recorded water usage values
   version: 1.0.0
 servers:
-  - url: '/api/xzy' # TODO: Replace xyz with actual deployment path
+  - url: '/api/usage-history' # TODO: Replace xyz with actual deployment path
     description: WISdoM
 
   - url: 'http://localhost:8000'
