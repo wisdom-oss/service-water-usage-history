@@ -13,7 +13,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
-	"github.com/wisdom-oss/common-go/v2/middleware"
+	errorHandler "github.com/wisdom-oss/common-go/v3/middleware/gin/error-handler"
+	"github.com/wisdom-oss/common-go/v3/middleware/gin/recoverer"
 
 	apiErrors "microservice/internal/errors"
 
@@ -34,16 +35,15 @@ func init() {
 func Middlewares() []gin.HandlerFunc {
 	var middlewares []gin.HandlerFunc
 
-	middlewares = append(middlewares, logger.SetLogger(
-		logger.WithDefaultLevel(zerolog.DebugLevel),
-		logger.WithLogger(func(_ *gin.Context, l zerolog.Logger) zerolog.Logger {
-			return l.Output(gin.DefaultWriter).With().Logger()
-		}),
-	))
+	middlewares = append(middlewares,
+		logger.SetLogger(
+			logger.WithDefaultLevel(zerolog.DebugLevel),
+			logger.WithUTC(false),
+		))
 
 	middlewares = append(middlewares, requestid.New())
-	middlewares = append(middlewares, middleware.ErrorHandler{}.Gin)
-	middlewares = append(middlewares, gin.CustomRecovery(middleware.RecoveryHandler))
+	middlewares = append(middlewares, errorHandler.Handler)
+	middlewares = append(middlewares, gin.CustomRecovery(recoverer.RecoveryHandler))
 
 	return middlewares
 }

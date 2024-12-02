@@ -13,12 +13,14 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
-	"github.com/wisdom-oss/common-go/v2/middleware"
 
 	apiErrors "microservice/internal/errors"
 
 	"github.com/gin-contrib/logger"
 	"github.com/gin-contrib/requestid"
+
+	errorHandler "github.com/wisdom-oss/common-go/v3/middleware/gin/error-handler"
+	"github.com/wisdom-oss/common-go/v3/middleware/gin/recoverer"
 )
 
 const ListenAddress = "127.0.0.1:8000"
@@ -36,8 +38,8 @@ func Middlewares() []gin.HandlerFunc {
 		))
 
 	middlewares = append(middlewares, requestid.New())
-	middlewares = append(middlewares, middleware.ErrorHandler{}.Gin)
-	middlewares = append(middlewares, gin.CustomRecovery(middleware.RecoveryHandler))
+	middlewares = append(middlewares, errorHandler.Handler)
+	middlewares = append(middlewares, gin.CustomRecovery(recoverer.RecoveryHandler))
 	return middlewares
 }
 
