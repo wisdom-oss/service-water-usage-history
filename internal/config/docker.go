@@ -10,10 +10,12 @@ package config
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 	errorHandler "github.com/wisdom-oss/common-go/v3/middleware/gin/error-handler"
+	"github.com/wisdom-oss/common-go/v3/middleware/gin/jwt"
 	"github.com/wisdom-oss/common-go/v3/middleware/gin/recoverer"
 
 	apiErrors "microservice/internal/errors"
@@ -44,6 +46,20 @@ func Middlewares() []gin.HandlerFunc {
 	middlewares = append(middlewares, requestid.New())
 	middlewares = append(middlewares, errorHandler.Handler)
 	middlewares = append(middlewares, gin.CustomRecovery(recoverer.RecoveryHandler))
+
+	// read the OIDC authority from the environment
+	oidcAuthority, isSet := os.LookupEnv("OIDC_AUTHORITY")
+	if !isSet {
+		oidcAuthority = "http://backend/api/auth/"
+	}
+
+	validator := jwt.Validator{}
+	err := validator.Discover(oidcAuthority)
+	if err != nil {
+		panic(err)
+	}
+
+	middlewares = append(middlewares, validator.Handler)
 
 	return middlewares
 }
