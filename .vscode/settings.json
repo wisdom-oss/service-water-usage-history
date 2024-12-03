@@ -1,6 +1,7 @@
 {
     "files.exclude": {
-        ".hc-socket": true
+        ".hc-socket": true,
+        ".vscode": true,
     },
     "gopls": {
         
