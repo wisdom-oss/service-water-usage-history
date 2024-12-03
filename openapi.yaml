@@ -5,14 +5,13 @@ info:
     This microservice provides access to recorded water usage values
   version: 1.0.0
 servers:
-  - url: '/api/usage-history' # TODO: Replace xyz with actual deployment path
+  - url: '/api/usage-history'
     description: WISdoM
 
   - url: 'http://localhost:8000'
     description: Development
 
 components:
-  # TODO: Remove if service won't handle private data
   securitySchemes:
     WISdoM:
       description: |
