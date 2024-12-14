@@ -44,3 +44,4 @@
 !types/
 !internal
 !internal/**
+!structs/
