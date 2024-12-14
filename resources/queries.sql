@@ -1,5 +1,4 @@
--- name: template-query
-CREATE TABLE template (
-    id serial,
-    name text
-);
+-- name: get-paginated
+SELECT *
+FROM timeseries.water_usage
+LIMIT $1 OFFSET $2;
