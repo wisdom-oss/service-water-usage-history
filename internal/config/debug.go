@@ -14,12 +14,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 
-	apiErrors "microservice/internal/errors"
-
 	"github.com/gin-contrib/logger"
 	"github.com/gin-contrib/requestid"
 
 	errorHandler "github.com/wisdom-oss/common-go/v3/middleware/gin/error-handler"
+	"github.com/wisdom-oss/common-go/v3/middleware/gin/jwt"
 	"github.com/wisdom-oss/common-go/v3/middleware/gin/recoverer"
 )
 
@@ -40,6 +39,12 @@ func Middlewares() []gin.HandlerFunc {
 	middlewares = append(middlewares, requestid.New())
 	middlewares = append(middlewares, errorHandler.Handler)
 	middlewares = append(middlewares, gin.CustomRecovery(recoverer.RecoveryHandler))
+
+	// this middleware allows all access during the local debugging and
+	// development
+	middlewares = append(middlewares, func(ctx *gin.Context) {
+		ctx.Set(jwt.KeyAdministrator, true)
+	})
 	return middlewares
 }
 
@@ -49,10 +54,10 @@ func PrepareRouter() *gin.Engine {
 	router.Use(Middlewares()...)
 
 	router.NoMethod(func(c *gin.Context) {
-		c.AbortWithStatusJSON(http.StatusMethodNotAllowed, apiErrors.MethodNotAllowed)
+		c.AbortWithStatusJSON(http.StatusMethodNotAllowed, MethodNotAllowed)
 	})
 	router.NoRoute(func(c *gin.Context) {
-		c.AbortWithStatusJSON(http.StatusNotFound, apiErrors.NotFound)
+		c.AbortWithStatusJSON(http.StatusNotFound, NotFound)
 
 	})
 
