@@ -152,8 +152,8 @@ github.com/ugorji/go/codec v1.2.12 h1:9LC83zGrHhuUA9l16C9AHXAqEV/2wBQ4nkvumAE65E
 github.com/ugorji/go/codec v1.2.12/go.mod h1:UNopzCgEMSXjBc6AOMqYvWC1ktqTAfzJZUZgYf6w6lg=
 github.com/wisdom-oss/common-go/v3 v3.1.0 h1:mc4jWnJrbqRLFL8yaZc/UQLh19cnYjrrkYXVzVutfLE=
 github.com/wisdom-oss/common-go/v3 v3.1.0/go.mod h1:WpLfiDfoPfgnbCTEAmvew3ilyu45upjm13hV/cQxIuk=
-github.com/wisdom-oss/go-healthcheck v1.0.2 h1:GB6XFXo1mO9GDcQwXrK6edH9x1qGxZB0JcL4y+tSYh4=
-github.com/wisdom-oss/go-healthcheck v1.0.2/go.mod h1:H2bLbrxhptz7EuK3SaW4HPVW7VF9C+UTeeWs7aLB5GE=
+github.com/wisdom-oss/go-healthcheck v1.0.5 h1:hW+J6o6v4EslUh+xAQ5byIza1pEzB3SjvYKbAdS6Qpw=
+github.com/wisdom-oss/go-healthcheck v1.0.5/go.mod h1:H2bLbrxhptz7EuK3SaW4HPVW7VF9C+UTeeWs7aLB5GE=
 golang.org/x/arch v0.12.0 h1:UsYJhbzPYGsT0HbEdmYcqtCv8UNGvnaL561NnIUvaKg=
 golang.org/x/arch v0.12.0/go.mod h1:FEVrYAQjsQXMVJ1nsMoVVXPZg6p2JE2mx8psSWTDQys=
 golang.org/x/crypto v0.31.0 h1:ihbySMvVjLAeSH1IbfcRTkD/iNscyz8rGzjF/E5hV6U=
