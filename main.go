@@ -16,6 +16,7 @@ import (
 	"microservice/internal/config"
 	"microservice/internal/db"
 	"microservice/routes"
+	routeUtils "microservice/routes/utils"
 
 	"github.com/wisdom-oss/common-go/v3/middleware/gin/jwt"
 )
@@ -42,9 +43,12 @@ func main() {
 	// prepare some scope requirers to make the route definition easiser
 	scopeRequirer := jwt.ScopeRequirer{}
 	scopeRequirer.Configure(internal.ServiceName)
-
 	r := config.PrepareRouter()
+	r.Use(routeUtils.ReadPageSettings)
 	r.GET("/", scopeRequirer.RequireRead, routes.PagedUsages)
+	r.GET("/consumer/*consumerID", scopeRequirer.RequireRead, routes.ConsumerUsages)
+	r.GET("/type/*usageTypeID", scopeRequirer.RequireRead, routes.TypedUsages)
+	r.GET("/municipal/*ars", scopeRequirer.RequireRead, routes.MunicipalUsages)
 
 	// create http server
 	server := &http.Server{

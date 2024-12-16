@@ -14,6 +14,7 @@ import (
 )
 
 func _paged_usages(t *testing.T) {
+	t.Parallel()
 	t.Run("Defaults", _pu_defaults)
 	t.Run("Pagination", _pu_pages)
 	t.Run("Sizing", _pu_page_size)
