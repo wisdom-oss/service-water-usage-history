@@ -1,18 +1,17 @@
-openapi: 3.0.3
+openapi: 3.0.2
 info:
-  # TODO: Change Information
-  title: Microservice Template
-  description: Microservice Template
+  title: Water Usage History
+  description: |
+    This microservice provides access to recorded water usage values
   version: 1.0.0
 servers:
-  - url: '/api/xzy' # TODO: Replace xyz with actual deployment path
+  - url: "/api/usage-history"
     description: WISdoM
 
-  - url: 'http://localhost:8000'
+  - url: "http://localhost:8000"
     description: Development
 
 components:
-  # TODO: Remove if service won't handle private data
   securitySchemes:
     WISdoM:
       description: |
@@ -20,15 +19,247 @@ components:
       type: openIdConnect
       openIdConnectUrl: /api/auth/.well-known/openid-configuration
 
+  schemas:
+    ErrorResponse:
+      type: object
+      required:
+        - type
+        - status
+        - title
+        - detail
+        - instance
+      properties:
+        type:
+          type: string
+        status:
+          type: integer
+        title:
+          type: string
+        detail:
+          type: string
+        instance:
+          type: string
+        error:
+          type: string
+    UsageRecord:
+      type: object
+      required:
+        - time
+        - amount
+        - usageType
+        - consumerID
+        - ars
+      properties:
+        time:
+          type: string
+          format: date-time
+        amount:
+          type: number
+        usageType:
+          type: string
+          format: uuid
+          nullable: true
+        consumerID:
+          type: string
+          format: uuid
+          nullable: true
+        ars:
+          type: string
+          nullable: false
+          pattern: "[01][0-6][0-9]{10}"
 paths:
   /:
+    parameters:
+      - in: query
+        name: page
+        schema:
+          type: integer
+          default: 1
+          minimum: 1
+
+      - in: query
+        name: size
+        schema:
+          type: integer
+          default: 10000
+          minimum: 1
+          maximum: 100000
+
     get:
+      security:
+        - WISdoM: ["usage-history:read"]
+      summary: Get Overall Usages
       responses:
         200:
-          description: Hello There response
+          description: Usage Records
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
-                pattern: '^hello there$'
-  
+                type: array
+                items:
+                  $ref: "#/components/schemas/UsageRecord"
+  /consumer/{consumerID}:
+    parameters:
+      - in: path
+        name: consumerID
+        allowEmptyValue: true
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: page
+        schema:
+          type: integer
+          default: 1
+          minimum: 1
+
+      - in: query
+        name: size
+        schema:
+          type: integer
+          default: 10000
+          minimum: 1
+          maximum: 100000
+    get:
+      security:
+        - WISdoM: ["usage-history:read"]
+      summary: Get Consumer Usages
+      responses:
+        200:
+          description: Usage Records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - $ref: "#/components/schemas/UsageRecord"
+                    - type: object
+                      properties:
+                        consumerID:
+                          nullable: false
+
+  /consumer/:
+    get:
+      security:
+        - WISdoM: ["usage-history:read"]
+      summary: Get Consumer Usages
+      responses:
+        400:
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /type/{usageType}:
+    parameters:
+      - in: path
+        name: usageType
+        required: true
+        allowEmptyValue: true
+        schema:
+          type: string
+          format: uuid
+
+      - in: query
+        name: page
+        required: false
+        schema:
+          type: integer
+          default: 1
+          minimum: 1
+
+      - in: query
+        name: size
+        required: false
+        schema:
+          type: integer
+          default: 10000
+          minimum: 1
+          maximum: 100000
+
+    get:
+      security:
+        - WISdoM: ["usage-history:read"]
+      summary: Get Usages by Type
+      responses:
+        200:
+          description: Usage Records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - $ref: "#/components/schemas/UsageRecord"
+                    - type: object
+                      properties:
+                        usageType:
+                          nullable: false
+
+  /type/:
+    get:
+      security:
+        - WISdoM: ["usage-history:read"]
+      summary: Get Consumer Usages
+      responses:
+        400:
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /municipal/{ars}:
+    parameters:
+      - in: path
+        name: ars
+        required: true
+        allowEmptyValue: true
+        schema:
+          type: string
+          pattern: "[01][0-6][0-9]{10}"
+
+      - in: query
+        name: page
+        schema:
+          type: integer
+          default: 1
+          minimum: 1
+
+      - in: query
+        name: size
+        schema:
+          type: integer
+          default: 10000
+          minimum: 1
+          maximum: 100000
+
+    get:
+      security:
+        - WISdoM: ["usage-history:read"]
+      summary: Get Usages by Type
+      responses:
+        200:
+          description: Usage Records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UsageRecord"
+
+  /municipal/:
+    get:
+      security:
+        - WISdoM: ["usage-history:read"]
+      summary: Get Consumer Usages
+      responses:
+        400:
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"

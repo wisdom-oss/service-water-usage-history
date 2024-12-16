@@ -1,8 +1,8 @@
-name: Create/Release Docker Image
+name: docker
 on:
   workflow_dispatch:
   push:
-    branches: [ "main", "feature/" ]
+    branches: '**'
     tags: [ 'v*.*.*' ]
   pull_request:
     branches: [ "main" ]
@@ -14,7 +14,6 @@ env:
 
 jobs:
   build:
-    name: Build Image
     runs-on: ubuntu-latest
     strategy:
       matrix:

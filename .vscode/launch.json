@@ -5,16 +5,22 @@
             "type": "go",
             "request": "launch",
             "mode": "exec",
+            "envFile": "${workspaceFolder}/.env",
             "program": "${workspaceFolder}/__debug_bin",
-            "preLaunchTask": "go: build (debug)"
+            "preLaunchTask": "go: build (debug)",
+            "console": "internalConsole",
+            "showLog": true
         },
         {
             "name": "Debug Release",
             "type": "go",
             "request": "launch",
             "mode": "exec",
+            "envFile": "${workspaceFolder}/.env",
             "program": "${workspaceFolder}/__docker_bin",
-            "preLaunchTask": "go: build (docker)"
+            "preLaunchTask": "go: build (docker)",
+            "console": "integratedTerminal",
+            "showLog": true
         }
     ]
 }

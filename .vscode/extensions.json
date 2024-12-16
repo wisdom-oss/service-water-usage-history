@@ -4,6 +4,7 @@
         "golang.go",
         "inferrinizzard.prettier-sql-vscode",
         "42Crunch.vscode-openapi",
-        "Gruntfuggly.todo-tree"
+        "Gruntfuggly.todo-tree",
+        "ckolkman.vscode-postgres"
     ]
 }
