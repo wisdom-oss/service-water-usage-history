@@ -162,8 +162,10 @@ paths:
         schema:
           type: string
           format: uuid
+
       - in: query
         name: page
+        required: false
         schema:
           type: integer
           default: 1
@@ -171,6 +173,7 @@ paths:
 
       - in: query
         name: size
+        required: false
         schema:
           type: integer
           default: 10000
