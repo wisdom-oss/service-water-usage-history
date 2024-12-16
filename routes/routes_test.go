@@ -87,7 +87,6 @@ func _page_settings(t *testing.T) {
 	t.Run("Page_To_Small", func(t *testing.T) {
 		expectedError := apiErrors.ErrInvalidPageSettings
 
-		t.Parallel()
 		req := httptest.NewRequest("GET", routePrefix+"/?page=-1", nil)
 		res := httptest.NewRecorder()
 
@@ -108,7 +107,6 @@ func _page_settings(t *testing.T) {
 	t.Run("Page_Size_Negative", func(t *testing.T) {
 		expectedError := apiErrors.ErrInvalidPageSettings
 
-		t.Parallel()
 		req := httptest.NewRequest("GET", routePrefix+"/?pageSize=-1", nil)
 		res := httptest.NewRecorder()
 
@@ -129,7 +127,6 @@ func _page_settings(t *testing.T) {
 	t.Run("Page_Size_Too_High", func(t *testing.T) {
 		expectedError := apiErrors.ErrInvalidPageSettings
 
-		t.Parallel()
 		req := httptest.NewRequest("GET", routePrefix+"/?pageSize=100001", nil)
 		res := httptest.NewRecorder()
 

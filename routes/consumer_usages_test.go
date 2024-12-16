@@ -17,7 +17,7 @@ import (
 )
 
 func _consumer_usages(t *testing.T) {
-	t.Parallel()
+
 	t.Run("Empty_Consumer_ID", _cu_empty_consumer_id)
 	t.Run("Invalid_Consumer_ID", _cu_invalid_consumer_id)
 	t.Run("Valid_Request", _cu_valid_request)
@@ -27,8 +27,6 @@ func _cu_empty_consumer_id(t *testing.T) {
 	apiPath := "consumer"
 	pathParameter := ""
 	expectedError := apiErrors.ErrEmptyConsumerID
-
-	t.Parallel()
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("%s/%s/%s", routePrefix, apiPath, pathParameter), nil)
 	res := httptest.NewRecorder()
@@ -58,8 +56,6 @@ func _cu_invalid_consumer_id(t *testing.T) {
 	pathParameter := randstr.Base64(rand.Intn(64))
 	expectedError := apiErrors.ErrInvalidConsumerID
 
-	t.Parallel()
-
 	req := httptest.NewRequest("GET", fmt.Sprintf("%s/%s/%s", routePrefix, apiPath, pathParameter), nil)
 	res := httptest.NewRecorder()
 
@@ -86,8 +82,6 @@ func _cu_invalid_consumer_id(t *testing.T) {
 func _cu_valid_request(t *testing.T) {
 	apiPath := "consumer"
 	pathParameter := `390dc645-c0a4-4cdf-8fbd-ab151f8c9687`
-
-	t.Parallel()
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("%s/%s/%s", routePrefix, apiPath, pathParameter), nil)
 	res := httptest.NewRecorder()

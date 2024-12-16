@@ -14,14 +14,12 @@ import (
 )
 
 func _paged_usages(t *testing.T) {
-	t.Parallel()
 	t.Run("Defaults", _pu_defaults)
 	t.Run("Pagination", _pu_pages)
 	t.Run("Sizing", _pu_page_size)
 }
 
 func _pu_defaults(t *testing.T) {
-	t.Parallel()
 	expectedEntries := 10000
 
 	req := httptest.NewRequest("GET", routePrefix+"/", nil)
@@ -43,7 +41,6 @@ func _pu_defaults(t *testing.T) {
 }
 
 func _pu_pages(t *testing.T) {
-	t.Parallel()
 	req := httptest.NewRequest("GET", routePrefix+"/", nil)
 	res := httptest.NewRecorder()
 
@@ -79,7 +76,6 @@ func _pu_pages(t *testing.T) {
 }
 
 func _pu_page_size(t *testing.T) {
-	t.Parallel()
 	expectedEntries := 1000
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("%s/?pageSize=%d", routePrefix, expectedEntries), nil)

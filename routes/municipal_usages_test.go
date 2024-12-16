@@ -15,7 +15,7 @@ import (
 )
 
 func _municipal_usages(t *testing.T) {
-	t.Parallel()
+
 	t.Run("Empty_ARS", _mu_empty_ars)
 	t.Run("Invalid_ARS", _mu_invalid_ars)
 	t.Run("Valid_Request", _mu_valid_request)
@@ -25,8 +25,6 @@ func _mu_empty_ars(t *testing.T) {
 	apiPath := "municipal"
 	pathParameter := ""
 	expectedError := apiErrors.ErrEmptyARS
-
-	t.Parallel()
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("%s/%s/%s", routePrefix, apiPath, pathParameter), nil)
 	res := httptest.NewRecorder()
@@ -55,8 +53,6 @@ func _mu_invalid_ars(t *testing.T) {
 	pathParameter := `031515401020`[0:10]
 	expectedError := apiErrors.ErrInvalidARS
 
-	t.Parallel()
-
 	req := httptest.NewRequest("GET", fmt.Sprintf("%s/%s/%s", routePrefix, apiPath, pathParameter), nil)
 	res := httptest.NewRecorder()
 
@@ -82,8 +78,6 @@ func _mu_invalid_ars(t *testing.T) {
 func _mu_valid_request(t *testing.T) {
 	apiPath := "municipal"
 	pathParameter := `031515401020`
-
-	t.Parallel()
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("%s/%s/%s", routePrefix, apiPath, pathParameter), nil)
 	res := httptest.NewRecorder()
