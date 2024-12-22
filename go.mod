@@ -10,7 +10,7 @@ require (
 	github.com/qustavo/dotsql v1.2.0
 	github.com/rs/zerolog v1.33.0
 	github.com/stretchr/testify v1.10.0
-	github.com/wisdom-oss/common-go/v3 v3.1.0
+	github.com/wisdom-oss/common-go/v3 v3.1.3
 	github.com/wisdom-oss/go-healthcheck v1.0.5
 
 )
