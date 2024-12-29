@@ -6,7 +6,7 @@ require (
 	github.com/gin-contrib/logger v1.2.2
 	github.com/gin-contrib/requestid v1.0.4
 	github.com/gin-gonic/gin v1.10.0
-	github.com/jackc/pgx/v5 v5.7.1
+	github.com/jackc/pgx/v5 v5.7.2
 	github.com/qustavo/dotsql v1.2.0
 	github.com/rs/zerolog v1.33.0
 	github.com/stretchr/testify v1.10.0
